@@ -1,0 +1,68 @@
+<main class="settings">
+  <div class="settings__header">
+    <button class="btn-back" routerLink="/">←</button>
+  </div>
+
+  <h1>Settings</h1>
+
+  <!-- BASIC INFO -->
+  <section class="card">
+    <h2 class="card__title">Basic Info</h2>
+    <div class="field">
+      <label>Name</label>
+      <div class="read-only">{{ userName }}</div>
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <div class="read-only">{{ userEmail }}</div>
+    </div>
+  </section>
+
+  <!-- PREFERENCES -->
+  <section class="card">
+    <h2 class="card__title">Preferences</h2>
+    <div class="field">
+      <label>Currency</label>
+      <select [(ngModel)]="currency" (ngModelChange)="onCurrencyChange()">
+        <option *ngFor="let c of currencies" [value]="c">{{ c }}</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Theme</label>
+      <select [(ngModel)]="theme" (ngModelChange)="onThemeChange()">
+        <option *ngFor="let t of themes" [value]="t">{{ t | titlecase }}</option>
+      </select>
+    </div>
+    <button class="btn-save" [disabled]="!prefsChanged" (click)="savePrefs()">Save Preferences</button>
+  </section>
+
+  <!-- MONTHLY BUDGETS -->
+  <section class="card">
+    <h2 class="card__title">Monthly Budgets</h2>
+    <div class="budget-list">
+      <div class="budget-row" *ngFor="let b of budgets; let i = index">
+        <input type="text" placeholder="Category" [(ngModel)]="b.category" (ngModelChange)="onBudgetChange()" />
+        <input type="number" placeholder="Amount" [(ngModel)]="b.amount" (ngModelChange)="onBudgetChange()" />
+        <button class="btn-remove" (click)="removeBudget(i)">✕</button>
+      </div>
+    </div>
+    <div class="budget-actions">
+      <button class="btn-save" [disabled]="!budgetsChanged" (click)="saveBudgets()">Save Budgets</button>
+      <button class="btn-add" (click)="addBudget()">＋ Add Category</button>
+    </div>
+  </section>
+
+  <!-- SAVINGS GOAL -->
+  <section class="card">
+    <h2 class="card__title">Savings Goal</h2>
+    <div class="field">
+      <label>Target Amount</label>
+      <input type="number" [(ngModel)]="savingsGoal.amount" (ngModelChange)="onGoalChange()" />
+    </div>
+    <div class="field">
+      <label>By</label>
+      <input type="date" [(ngModel)]="savingsGoal.targetDate" (ngModelChange)="onGoalChange()" />
+    </div>
+    <button class="btn-save" [disabled]="!goalChanged" (click)="saveGoal()">Save Goal</button>
+  </section>
+</main>

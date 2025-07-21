@@ -22,7 +22,13 @@
             <p class="home__date">{{ today | date : "dd MMM yyyy" }}</p>
           </div>
         </div>
-        <button class="home__btn-settings" aria-label="Settings">⚙️</button>
+        <button
+          class="home__btn-settings"
+          aria-label="Settings"
+          routerLink="/settings"
+        >
+          ⚙️
+        </button>
       </div>
       <div class="home__wave"></div>
     </header>
@@ -206,48 +212,46 @@
     </div>
   </div>
 
- <!-- CASH SCANNER POPUP -->
-<div class="modal-backdrop" *ngIf="showCashModal">
-  <div class="modal modal--scanner">
-    <h2>Scan Banknote</h2>
+  <!-- CASH SCANNER POPUP -->
+  <div class="modal-backdrop" *ngIf="showCashModal">
+    <div class="modal modal--scanner">
+      <h2>Scan Banknote</h2>
 
-    <div class="scanner-view">
-      <video
-        #cashVideo
-        autoplay
-        muted
-        playsinline
-        class="inner-video">
-      </video>
-    </div>
+      <div class="scanner-view">
+        <video
+          #cashVideo
+          autoplay
+          muted
+          playsinline
+          class="inner-video"
+        ></video>
+      </div>
 
-    <div class="scan-info">
-      <p *ngIf="recognizedValue === null">
-        Waiting for banknote…
-      </p>
-      <div *ngIf="recognizedValue !== null" class="scan-result">
-        <strong>Detected:</strong> €{{ recognizedValue }}
+      <div class="scan-info">
+        <p *ngIf="recognizedValue === null">Waiting for banknote…</p>
+        <div *ngIf="recognizedValue !== null" class="scan-result">
+          <strong>Detected:</strong> €{{ recognizedValue }}
+          <button
+            type="button"
+            class="refresh-btn"
+            aria-label="Try again"
+            (click)="resetCashScan()"
+          >
+            ⟳
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" (click)="closeCash()">Cancel</button>
         <button
           type="button"
-          class="refresh-btn"
-          aria-label="Try again"
-          (click)="resetCashScan()"
+          [disabled]="recognizedValue === null"
+          (click)="saveCash()"
         >
-          ⟳
+          Save
         </button>
       </div>
     </div>
-
-    <div class="modal-actions">
-      <button type="button" (click)="closeCash()">Cancel</button>
-      <button
-        type="button"
-        [disabled]="recognizedValue === null"
-        (click)="saveCash()"
-      >
-        Save
-      </button>
-    </div>
   </div>
-</div>
 </main>
