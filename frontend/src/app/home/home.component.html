@@ -1,0 +1,146 @@
+<main class="home">
+  <!-- loading & error -->
+  <ng-container *ngIf="loading">
+    <p class="loading">Loading dashboard…</p>
+  </ng-container>
+  <ng-container *ngIf="error">
+    <p class="error">{{ error }}</p>
+  </ng-container>
+
+  <ng-container *ngIf="!loading && !error">
+    <!-- HEADER -->
+    <header class="home__header">
+      <div class="home__header-top">
+        <div class="home__profile card--frosted">
+          <img
+            src="assets/avatar.png"
+            alt="Avatar"
+            class="home__avatar"
+          />
+          <div class="home__profile-info">
+            <h1 class="home__greeting">Hey, {{ userName }}!</h1>
+            <p class="home__date">{{ today | date:'dd MMM yyyy' }}</p>
+          </div>
+        </div>
+        <button
+          class="home__btn-settings"
+          aria-label="Settings"
+        >⚙️</button>
+      </div>
+      <div class="home__wave"></div>
+    </header>
+
+    <!-- SUMMARY -->
+    <section class="home__summary">
+      <div class="card card--glass">
+        <div class="card__label">Balance</div>
+        <div class="card__value">
+          {{ dashboard.balance | currency : "EUR" }}
+        </div>
+      </div>
+      <div class="card card--glass">
+        <div class="card__label">Budget Used</div>
+        <div class="card__value">{{ budgetUsage }}%</div>
+        <div class="progress">
+          <div class="progress__bar" [style.width.%]="budgetUsage"></div>
+        </div>
+      </div>
+      <div class="card card--glass">
+        <div class="card__label">Scheduled</div>
+        <div class="card__value">{{ scheduledCount }}</div>
+        <small>upcoming bills</small>
+      </div>
+    </section>
+
+    <!-- CHART + TOGGLE -->
+    <section class="home__chart">
+      <div class="segmented-control-buttons">
+        <button (click)="toggle('byday')" [class.active]="viewMode === 'byday'">
+          By Day
+        </button>
+        <button (click)="toggle('daily')" [class.active]="viewMode === 'daily'">
+          Daily
+        </button>
+        <button
+          (click)="toggle('monthly')"
+          [class.active]="viewMode === 'monthly'"
+        >
+          Monthly
+        </button>
+      </div>
+
+      <!-- date picker below, only for By Day -->
+      <div *ngIf="viewMode === 'byday'" class="date-picker-inline">
+        <input
+          #dateInput
+          type="date"
+          [value]="selectedDayStr"
+          (change)="onDayChange(dateInput.value)"
+          class="date-input"
+        />
+      </div>
+
+      <div class="card card--glass chart-card">
+        <canvas
+          *ngIf="!loading && !error"
+          baseChart
+          [data]="chartData"
+          [options]="chartOptions"
+          chartType="line"
+        >
+        </canvas>
+        <p *ngIf="loading" class="loading">Loading chart…</p>
+        <p *ngIf="error" class="error">{{ error }}</p>
+      </div>
+    </section>
+
+    <!-- ACTION BUTTONS -->
+    <section class="home__actions">
+      <button class="action-btn" (click)="onAdd()">
+        <span class="icon">📝</span>
+        <span class="label">Add</span>
+      </button>
+      <button class="action-btn" (click)="onScanQR()">
+        <span class="icon">📷</span>
+        <span class="label">Scan QR</span>
+      </button>
+      <button class="action-btn" (click)="onScanCash()">
+        <span class="icon">💵</span>
+        <span class="label">Scan Cash</span>
+      </button>
+    </section>
+
+    <!-- HISTORY -->
+    <section class="home__history">
+      <h2>Recent Activity</h2>
+      <ul>
+        <li *ngFor="let tx of recentTransactions">
+          <div class="tx__info">
+            <span class="tx__icon">{{ tx.icon }}</span>
+            <div>
+              <strong class="tx__desc">{{ tx.description }}</strong>
+              <small class="tx__date">{{ tx.date | date : "dd MMM" }}</small>
+            </div>
+          </div>
+          <div class="tx__amount" [class.negative]="tx.amount < 0">
+            {{ tx.amount | currency : "EUR" }}
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- UPCOMING -->
+    <section class="home__upcoming-small card--glass">
+      <h3>Upcoming Bills</h3>
+      <ul>
+        <li *ngFor="let bill of upcomingBills">
+          <span>{{ bill.name }}</span>
+          <span class="amount">
+            {{ bill.date | date : "dd MMM" }} •
+            {{ bill.amount | currency : "EUR" }}
+          </span>
+        </li>
+      </ul>
+    </section>
+  </ng-container>
+</main>
