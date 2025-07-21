@@ -19,13 +19,10 @@
           />
           <div class="home__profile-info">
             <h1 class="home__greeting">Hey, {{ userName }}!</h1>
-            <p class="home__date">{{ today | date:'dd MMM yyyy' }}</p>
+            <p class="home__date">{{ today | date : "dd MMM yyyy" }}</p>
           </div>
         </div>
-        <button
-          class="home__btn-settings"
-          aria-label="Settings"
-        >⚙️</button>
+        <button class="home__btn-settings" aria-label="Settings">⚙️</button>
       </div>
       <div class="home__wave"></div>
     </header>
@@ -143,4 +140,114 @@
       </ul>
     </section>
   </ng-container>
+
+  <!-- ADD EXPENSE MODAL -->
+  <div class="modal-backdrop" *ngIf="showAddModal">
+    <div class="modal">
+      <h2>Add New Expense</h2>
+      <form (ngSubmit)="submitExpense()">
+        <input
+          type="number"
+          name="amount"
+          placeholder="Amount"
+          [(ngModel)]="newExpense.amount"
+          required
+        />
+        <input type="date" name="date" [(ngModel)]="newExpense.date" required />
+        <select name="category" [(ngModel)]="newExpense.category" required>
+          <option value="" disabled>Select category</option>
+          <option>Food</option>
+          <option>Transport</option>
+          <option>Entertainment</option>
+          <option>Other</option>
+        </select>
+        <div class="modal-actions">
+          <button type="button" (click)="closeAddModal()">Cancel</button>
+          <button type="submit">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCANNER POPUP -->
+  <div class="modal-backdrop" *ngIf="showScanner">
+    <div class="modal modal--scanner">
+      <h2>Scan QR Code</h2>
+      <zxing-scanner
+        [timeBetweenScans]="300"
+        [formats]="allowedFormats"
+        (scanSuccess)="onCodeResult($event)"
+        class="scanner-view"
+      >
+      </zxing-scanner>
+
+      <div class="scan-info">
+        <p *ngIf="!qrText">Waiting for QR…</p>
+        <p *ngIf="qrText">
+          <strong>Raw:</strong> {{ qrText }}<br />
+          <strong>Price:</strong>
+          <span *ngIf="extractedPrice !== null">
+            €{{ extractedPrice.toFixed(2) }}
+          </span>
+          <span *ngIf="extractedPrice === null">— no price found</span>
+        </p>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" (click)="closeScanner()">Cancel</button>
+        <button
+          type="button"
+          [disabled]="extractedPrice === null"
+          (click)="saveScanned()"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+
+ <!-- CASH SCANNER POPUP -->
+<div class="modal-backdrop" *ngIf="showCashModal">
+  <div class="modal modal--scanner">
+    <h2>Scan Banknote</h2>
+
+    <div class="scanner-view">
+      <video
+        #cashVideo
+        autoplay
+        muted
+        playsinline
+        class="inner-video">
+      </video>
+    </div>
+
+    <div class="scan-info">
+      <p *ngIf="recognizedValue === null">
+        Waiting for banknote…
+      </p>
+      <div *ngIf="recognizedValue !== null" class="scan-result">
+        <strong>Detected:</strong> €{{ recognizedValue }}
+        <button
+          type="button"
+          class="refresh-btn"
+          aria-label="Try again"
+          (click)="resetCashScan()"
+        >
+          ⟳
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" (click)="closeCash()">Cancel</button>
+      <button
+        type="button"
+        [disabled]="recognizedValue === null"
+        (click)="saveCash()"
+      >
+        Save
+      </button>
+    </div>
+  </div>
+</div>
 </main>

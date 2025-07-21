@@ -6,6 +6,11 @@ $primary: #4a90e2;
 $red: #dc3545;
 $text: #1a1a1a;
 $text-muted: #666;
+$primary: #4a90e2;
+$bg-modal: #fff;
+$backdrop: rgba(0, 0, 0, 0.6);
+$radius: 16px;
+$shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 
 @use "sass:color";
 
@@ -23,6 +28,224 @@ $text-muted: #666;
     text-align: center;
     margin: 16px 0;
     color: $text-muted;
+  }
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-backdrop .modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  width: 90%;
+  max-width: 360px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.modal-backdrop .modal h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+}
+
+.modal-backdrop .modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-backdrop .modal input,
+.modal-backdrop .modal select {
+  padding: 10px;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.modal-backdrop .modal .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.modal-backdrop .modal .modal-actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal-backdrop .modal .modal-actions button:first-child {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.modal-backdrop .modal .modal-actions button:last-child {
+  background: #4a90e2;
+  color: #fff;
+}
+
+//SCANNER
+.modal--scanner {
+  background: #fff;
+  border-radius: $radius;
+  padding: 16px;
+  width: 92%;
+  max-width: 360px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  /* Camera controls row */
+  .scanner-controls {
+    display: flex;
+    gap: 8px;
+
+    select {
+      flex: 2;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background: #fff;
+      font-size: 0.9rem;
+    }
+
+    .btn-lite {
+      flex: 1;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 6px;
+      padding: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      &:hover {
+        background: color.adjust(#f0f0f0, $lightness: 5%);
+      }
+    }
+  }
+
+  .scanner-view {
+    --zoom-factor: 1 !important;
+    position: relative;
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 4px solid transparent;
+      animation: border-rotate 2s linear infinite;
+      pointer-events: none;
+    }
+  }
+
+  .scan-info {
+    position: relative;
+    font-size: 0.9rem;
+    color: #333;
+    padding-right: 40px; // make room for the button
+
+    p, .scan-result {
+      margin: 4px 0;
+    }
+
+    .scan-result {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .refresh-btn {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      line-height: 1;
+      color: $primary;
+      cursor: pointer;
+      transition: color 0.2s, transform 0.1s;
+      padding: 4px;
+      margin-left: 8px;
+
+      &:hover {
+        color: color.adjust($primary, $lightness: -10%);
+        transform: rotate(20deg);
+      }
+    }
+  }
+
+  /* Action buttons */
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+
+    button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: background 0.2s, transform 0.1s, opacity 0.2s;
+
+      /* Cancel button style (always active) */
+      &:first-child {
+        background: #e0e0e0;
+        color: #333;
+        cursor: pointer;
+
+        &:hover {
+          background: darken(#e0e0e0, 5%);
+        }
+      }
+
+      /* Save button */
+      &:last-child {
+        background: $primary; // your main color
+        color: #fff;
+        cursor: pointer;
+
+        /* Disabled state: */
+        &:disabled {
+          background: #ccc; // grey
+          color: #666; // muted text
+          cursor: not-allowed;
+          opacity: 0.7;
+          transform: none; // no lift
+        }
+
+        /* Hover lift only when enabled */
+        &:not(:disabled):hover {
+          transform: translateY(-2px);
+        }
+      }
+    }
+  }
+
+  video,
+  canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 }
 
