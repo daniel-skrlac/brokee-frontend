@@ -12,21 +12,24 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { SettingsComponent } from './settings/settings.component';
+import { TrackingComponent } from './tracking/tracking.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'settings', component: SettingsComponent },
+  { path: 'tracking', component: TrackingComponent },
   { path: '**', redirectTo: '' },
 ];
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, SettingsComponent],
+  declarations: [AppComponent, HomeComponent, SettingsComponent, TrackingComponent],
   imports: [
     BrowserModule,
     FormsModule,
     ZXingScannerModule,
     NgChartsModule,
     ReactiveFormsModule,
+    NgChartsModule,
     RouterModule.forRoot(routes),
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),

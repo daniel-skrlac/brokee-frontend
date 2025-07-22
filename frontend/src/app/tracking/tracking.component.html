@@ -1,0 +1,142 @@
+<main class="tracking">
+  <!-- BACK BUTTON & TITLE -->
+  <div class="settings__header">
+    <button class="btn-back" routerLink="/">←</button>
+  </div>
+  <h1 class="page-title">Statistics</h1>
+
+  <!-- KPI CARDS -->
+  <section class="kpi-row">
+    <div class="kpi-card">
+      <div class="value">{{ totalExpenses | currency : "EUR" }}</div>
+      <div class="label">Expenses</div>
+    </div>
+    <div class="kpi-card">
+      <div class="value">{{ totalIncome | currency : "EUR" }}</div>
+      <div class="label">Income</div>
+    </div>
+    <div class="kpi-card">
+      <div class="value">{{ budgetRemaining | currency : "EUR" }}</div>
+      <div class="label">Budget Left</div>
+    </div>
+  </section>
+
+  <!-- CASH‑FLOW FUNNEL -->
+  <section class="card funnel-section">
+    <h2>Cash-Flow Funnel</h2>
+    <canvas
+      baseChart
+      [data]="funnelData"
+      [options]="funnelOptions"
+      [type]="funnelType"
+    ></canvas>
+  </section>
+
+  <!-- TOP 3 SPENDING LOCATIONS MAP SLIDER -->
+  <section class="card map-section">
+    <h2>Top 3 Spending Locations</h2>
+    <div id="clusterMap" style="height: 300px; border-radius: 12px; overflow: hidden;"></div>
+    <div class="map-controls">
+      <button (click)="prevLocation()">◀ Previous</button>
+      <span>{{ topExpenseLocations[currentLocationIndex].label }}</span>
+      <button (click)="nextLocation()">Next ▶</button>
+    </div>
+  </section>
+
+  <!-- SAVINGS RATE GAUGE -->
+  <section class="card gauge-section">
+    <h2>Savings Rate</h2>
+    <div class="gauge-wrapper">
+      <canvas
+        baseChart
+        [data]="savingsRateData"
+        [options]="savingsRateOptions"
+        [type]="'doughnut'"
+      ></canvas>
+      <div class="gauge-center">
+        <div class="gauge-value">{{ savingsRate }}%</div>
+        <div class="gauge-label">of income</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 30‑DAY ROLLING AVERAGE SPARKLINE -->
+  <section class="card chart-section rolling-avg">
+    <h2>30-Day Avg Spend</h2>
+    <div class="chart-wrapper">
+      <canvas
+        baseChart
+        [data]="rollingAvgData"
+        [options]="rollingAvgOptions"
+        [type]="'line'"
+        (chartClick)="onRollingAvgClick($event)"
+        #rollingAvgChart
+      ></canvas>
+    </div>
+  </section>
+
+  <!-- CALENDAR HEATMAP -->
+  <section class="calendar-heatmap">
+    <h2>Spending Heatmap</h2>
+    <div class="heatmap-grid">
+      <div *ngFor="let d of heatmapData" class="day level-{{ d.level }}"></div>
+    </div>
+    <div class="weekdays">
+      <div>Sun</div>
+      <div>Mon</div>
+      <div>Tue</div>
+      <div>Wed</div>
+      <div>Thu</div>
+      <div>Fri</div>
+      <div>Sat</div>
+    </div>
+  </section>
+
+  <!-- SPENDING VS INCOME BAR CHART -->
+  <section class="card chart-section">
+    <h2>Spending vs Income</h2>
+    <canvas
+      baseChart
+      [data]="incomeSpendingData"
+      [options]="incomeSpendingOptions"
+      chartType="bar"
+    ></canvas>
+  </section>
+
+  <!-- CATEGORY BREAKDOWN -->
+  <section class="card chart-section">
+    <h2>Category Breakdown</h2>
+    <canvas
+      baseChart
+      [data]="categoryBarData"
+      [options]="categoryBarOptions"
+      chartType="bar"
+    ></canvas>
+  </section>
+
+  <!-- FLOATING CRYPTO BUTTON -->
+  <button class="crypto-btn" (click)="openCryptoModal()">
+    <i class="material-icons">currency_bitcoin</i>
+  </button>
+
+  <!-- CRYPTO MODAL -->
+  <div class="modal-backdrop" *ngIf="showCryptoModal">
+    <div class="modal crypto-modal">
+      <h2>Top {{ cryptoList.length }} Cryptocurrencies</h2>
+      <ul>
+        <li *ngFor="let c of cryptoList">
+          <span>{{ c.name }}</span>
+          <span [ngClass]="{ rise: c.rise, fall: !c.rise }">
+            {{ c.price | number : "1.2-2" }} USD
+            <i class="material-icons">
+              {{ c.rise ? "arrow_upward" : "arrow_downward" }}
+            </i>
+          </span>
+        </li>
+      </ul>
+      <div class="modal-actions">
+        <button (click)="closeCryptoModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</main>

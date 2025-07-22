@@ -1,1 +1,34 @@
 <router-outlet></router-outlet>
+
+<nav class="bottom-nav card--glass">
+  <!-- Left: Transactions -->
+  <a
+    routerLink="/transactions"
+    routerLinkActive="active"
+    class="nav-item"
+  >
+    <i class="material-icons icon">list_alt</i>
+    <span class="label">Transactions</span>
+  </a>
+
+  <!-- Center: Home -->
+  <a
+    routerLink="/"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }"
+    class="nav-item home"
+  >
+    <i class="material-icons icon">home</i>
+    <span class="label">Home</span>
+  </a>
+
+  <!-- Right: Tracking -->
+  <a
+    routerLink="/tracking"
+    routerLinkActive="active"
+    class="nav-item"
+  >
+    <i class="material-icons icon">show_chart</i>
+    <span class="label">Tracking</span>
+  </a>
+</nav>

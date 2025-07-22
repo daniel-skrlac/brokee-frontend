@@ -57,12 +57,18 @@ export class HomeComponent implements OnInit {
   selectedDayStr = this.toInputDate(this.selectedDay);
 
   public chartData!: ChartData<'line', number[], string>;
-  chartOptions: ChartOptions<'line'> = {
+  chartOptions: ChartOptions = {
     responsive: true,
-    plugins: { legend: { display: false } },
+    plugins: {
+      legend: { display: false },
+    },
     scales: {
-      x: { ticks: { maxRotation: 0, autoSkip: true } },
-      y: { beginAtZero: true },
+      x: {
+        ticks: { maxRotation: 0, autoSkip: true },
+      },
+      y: {
+        beginAtZero: true,
+      },
     },
   };
 
@@ -248,23 +254,20 @@ export class HomeComponent implements OnInit {
         video: { facingMode: 'environment' },
       });
       this.cashVideo.nativeElement.srcObject = stream;
-    } catch (err) {
-    }
+    } catch (err) {}
   }
 
   private async restartCashScanner() {
     clearInterval(this.ocrIntervalId);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' }
+        video: { facingMode: 'environment' },
       });
       this.cashVideo.nativeElement.srcObject = stream;
 
       // every 2s, grab a frame and run OCR
       this.ocrIntervalId = setInterval(() => this.captureAndRead(), 300);
-
-    } catch (err) {
-    }
+    } catch (err) {}
   }
 
   private async captureAndRead() {
