@@ -284,7 +284,6 @@ export class TrackingComponent implements OnInit, AfterViewInit {
       index
     ] as number;
     const label = this.rollingAvgData.labels![index] as string;
-    alert(`Day: ${label}\nAvg Spend: €${value}`);
   }
 
   private initIncomeSpendingChart(): void {
