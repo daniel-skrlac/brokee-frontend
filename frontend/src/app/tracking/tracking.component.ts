@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
 // ESM bundle for Chart.js v4
 import Chart from 'chart.js/auto';
 import type {

@@ -1,9 +1,10 @@
-<!-- all app pages -->
+<!-- the app’s pages -->
 <router-outlet></router-outlet>
 
 <!-- bottom navigation (hidden on auth screens) -->
-<nav *ngIf="!authScreen" class="bottom-nav card--glass">
-  <a routerLink="/transaction" routerLinkActive="active" class="nav-item">
+<nav *ngIf="showNav" class="bottom-nav card--glass">
+
+  <a routerLink="/transaction" routerLinkActive="active"  class="nav-item">
     <i class="material-icons icon">list_alt</i>
     <span class="label">Transactions</span>
   </a>
@@ -19,4 +20,5 @@
     <i class="material-icons icon">show_chart</i>
     <span class="label">Tracking</span>
   </a>
+
 </nav>

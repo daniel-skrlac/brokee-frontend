@@ -17,9 +17,6 @@
               placeholder="Username"
               formControlName="username"
               />
-      <span class="error" *ngIf="f('username')?.touched && f('username')?.invalid">
-        Minimum 3 chars required
-      </span>
     </label>
 
     <!-- password -->
@@ -53,5 +50,12 @@
       <a routerLink="/terms">Terms</a> and
       <a routerLink="/privacy">Privacy</a>.
     </small>
+
+    <p class="alt">
+      Don't have an account?
+      <button type="button" routerLink="/register">Sign up</button>
+    </p>
   </form>
+
+
 </section>

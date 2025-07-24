@@ -16,6 +16,8 @@ import { TrackingComponent } from './tracking/tracking.component';
 import { TransactionsModule } from './transaction/transactions.module';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './auth.guard';
+import { RegisterComponent } from './register/register.component';
+import { AuthModule } from './auth/auth.module';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -25,10 +27,11 @@ const routes: Routes = [
   { path: 'transaction', loadChildren: () => import('./transaction/transactions.module')
                                    .then(m => m.TransactionsModule), canActivate: [AuthGuard] },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'register', component: RegisterComponent },
   { path: '**', redirectTo: 'login' }
 ];
 @NgModule({
-  declarations: [AppComponent, HomeComponent, SettingsComponent, TrackingComponent, LoginComponent ],
+  declarations: [AppComponent, HomeComponent, SettingsComponent, TrackingComponent ],
   imports: [
     TransactionsModule,
     BrowserModule,
@@ -37,6 +40,7 @@ const routes: Routes = [
     NgChartsModule,
     ReactiveFormsModule,
     NgChartsModule,
+    AuthModule,
     RouterModule.forRoot(routes),
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),
