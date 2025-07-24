@@ -1,0 +1,212 @@
+/* ────────────────────────────────────────────────────────────────
+   BASE TOKENS  – match the palette you already use elsewhere
+──────────────────────────────────────────────────────────────── */
+
+$bg          : #f2f4f8;
+$glass       : rgba(255, 255, 255, .7);
+$cardShadow  : 0 4px 16px rgba(0,0,0,.06);
+$radius      : 16px;
+$primary     : #4a90e2;
+$txt         : #222;
+$txtMuted    : #666;
+$red         : #dc3545;
+$green       : #2ecc71;
+
+/* ────────────────────────────────────────────────────────────────
+   PAGE WRAPPER
+──────────────────────────────────────────────────────────────── */
+
+.transactions{
+  padding:16px;
+  background:$bg;
+  min-height:100vh;
+  font-family:"Inter",sans-serif;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   HEADER (back btn + title)
+──────────────────────────────────────────────────────────────── */
+
+.tx-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:16px;
+
+  .btn-back{
+    background:none;border:none;font-size:1.4rem;
+    color:$txt;cursor:pointer;transition:color .2s;
+    &:hover{color:$primary;}
+  }
+
+  h1{font-size:1.45rem;font-weight:600;margin:0;color:$txt;}
+}
+
+/* ────────────────────────────────────────────────────────────────
+   MODE SWITCH  (segmented control)
+──────────────────────────────────────────────────────────────── */
+
+.segmented{
+  display:flex;
+  background:$glass;
+  backdrop-filter:blur(10px);
+  border-radius:36px;
+  box-shadow:$cardShadow;
+  padding:4px;
+  margin-bottom:20px;
+
+  button{
+    flex:1;
+    border:none;
+    border-radius:32px;
+    background:transparent;
+    color:$txtMuted;
+    padding:10px 0;
+    font-size:.9rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:background .25s,color .25s;
+
+    &.active{
+      background:$primary;
+      color:#fff;
+      box-shadow:0 2px 8px rgba($primary,.35);
+    }
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   FILTER PANEL
+──────────────────────────────────────────────────────────────── */
+
+.card--glass{
+  background:$glass;
+  backdrop-filter:blur(10px);
+  border-radius:$radius;
+  box-shadow:$cardShadow;
+}
+
+/* overall container */
+.filters{
+  @extend .card--glass;
+  padding:14px 16px;
+  margin-bottom:24px;
+
+  .search{
+    width:100%;
+    padding:10px 14px;
+    font-size:.95rem;
+    border:none;
+    border-radius:32px;
+    background:#f1f3f7;
+    margin-bottom:14px;
+  }
+
+  /* grid for the rest of the fields */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+    gap:12px;
+    align-items:end;        /* makes different‑height fields align */
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      label{
+        font-size:.75rem;
+        color:$txtMuted;
+        margin-bottom:4px;
+      }
+    }
+
+    /* tiny ‘toggle’ field is just the checkbox + label inline */
+    .field.toggle{flex-direction:row;align-items:center;gap:6px;label{margin:0}}
+
+    select,
+    input{
+      height:38px;
+      line-height:38px;
+      padding:0 12px;
+      font-size:.9rem;
+      border:1px solid #ccc;
+      border-radius:8px;
+      background:#fff;
+      color:$txt;
+      transition:border-color .2s;
+
+      &:focus{outline:none;border-color:$primary;}
+    }
+
+    /* shrink native date pickers (Chrome / Safari) */
+    input[type="date"]{
+      appearance:none;
+      min-height:38px;
+      &::-webkit-datetime-edit{padding:0;}
+      &::-webkit-calendar-picker-indicator{width:18px;height:18px;margin-left:4px;}
+      &::-webkit-inner-spin-button,&::-webkit-clear-button{display:none;}
+    }
+
+    .btn-reset{
+      grid-column:span 2;
+      padding:10px;
+      background:$primary;
+      border:none;
+      border-radius:8px;
+      color:#fff;
+      font-weight:600;
+      cursor:pointer;
+      transition:background .25s;
+      &:hover{background:darken($primary,5%);}
+    }
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   LIST‑VIEW  (day chips + cards)
+──────────────────────────────────────────────────────────────── */
+
+.day-chip{
+  margin:24px 0 6px;
+  font-size:.8rem;
+  font-weight:600;
+  color:#fff;
+  background:$primary;
+  padding:6px 12px;
+  border-radius:12px;
+  display:inline-block;
+  box-shadow:0 2px 6px rgba($primary,.35);
+}
+
+.tx-card{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:#fff;
+  border-radius:$radius;
+  box-shadow:$cardShadow;
+  padding:12px 14px;
+  margin-bottom:10px;
+
+  .icon{font-size:1.3rem;line-height:1;}
+
+  .info{
+    flex:1;
+    .cat{font-size:.95rem;}
+    .sub{font-size:.75rem;color:$txtMuted;}
+  }
+
+  .meta{
+    text-align:right;
+    .amount{font-weight:600;}
+    small{display:block;font-size:.75rem;color:$txtMuted;}
+  }
+
+  &.expense .amount{color:$red;}
+  &.income  .amount{color:$green;}
+}
+
+/* ────────────────────────────────────────────────────────────────
+   GLOBAL BOTTOM PADDING (nav bar height)
+──────────────────────────────────────────────────────────────── */
+
+main.transactions{padding-bottom:90px;}

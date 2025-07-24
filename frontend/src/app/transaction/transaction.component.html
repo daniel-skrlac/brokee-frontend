@@ -1,0 +1,94 @@
+<main class="transactions">
+
+    <!-- BACK BUTTON + PAGE TITLE -->
+    <header class="tx-header">
+      <button class="btn-back" routerLink="/">←</button>
+      <h1>Transactions</h1>
+    </header>
+  
+    <!-- MODE SWITCH ---------------------------------------------------------->
+    <div class="segmented">
+      <button (click)="switch('list')"     [class.active]="mode==='list'">List</button>
+      <button (click)="switch('calendar')" [class.active]="mode==='calendar'">Calendar</button>
+    </div>
+  
+    <!-- FILTER PANEL ---------------------------------------------------------->
+    <section class="filters card--glass">
+      <input class="search" placeholder="Search merchant, note, category…"
+             [(ngModel)]="q" (input)="applyFilters()"/>
+  
+      <div class="grid">
+        <!-- row 1 -->
+        <div class="field">
+          <label>Type</label>
+          <select [(ngModel)]="f.type" (change)="applyFilters()">
+            <option value="">All</option>
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+          </select>
+        </div>
+  
+        <div class="field">
+          <label>From</label>
+          <input type="date" [(ngModel)]="f.from" (change)="applyFilters()">
+        </div>
+  
+        <div class="field">
+          <label>To</label>
+          <input type="date" [(ngModel)]="f.to" (change)="applyFilters()">
+        </div>
+  
+        <!-- row 2 -->
+        <div class="field">
+          <label>Min €</label>
+          <input type="number" [(ngModel)]="f.min" (input)="applyFilters()">
+        </div>
+  
+        <div class="field">
+          <label>Max €</label>
+          <input type="number" [(ngModel)]="f.max" (input)="applyFilters()">
+        </div>
+  
+        <div class="field toggle">
+          <label>
+            <input type="checkbox" [(ngModel)]="f.recurring" (change)="applyFilters()">
+            Recurring
+          </label>
+        </div>
+  
+        <button class="btn-reset" (click)="clear()">Reset</button>
+      </div>
+    </section>
+  
+    <!-- CALENDAR VIEW -------------------------------------------------------->
+    <app-calendar-view *ngIf="mode==='calendar'"
+                       [transactions]="viewTx"
+                       (selectDate)="handleSelect($event)">
+    </app-calendar-view>
+  
+    <!-- LIST VIEW ------------------------------------------------------------>
+    <section *ngIf="mode==='list'" class="tx-list">
+      <ng-container *ngFor="let day of groupKeys">
+        <div class="day-chip">{{ day }}</div>
+  
+        <div class="tx-card"
+             *ngFor="let t of groups[day]"
+             [class.expense]="t.type==='expense'"
+             [class.income] ="t.type==='income'">
+          <span class="icon">{{ t.categoryIcon }}</span>
+  
+          <div class="info">
+            <strong class="cat">{{ t.category }}</strong>
+            <small class="sub" *ngIf="t.merchant">{{ t.merchant }}</small>
+            <small class="sub" *ngIf="t.note">{{ t.note }}</small>
+          </div>
+  
+          <div class="meta">
+            <span class="amount">€{{ t.amount }}</span>
+            <small>{{ t.date | date:'shortTime' }}</small>
+          </div>
+        </div>
+      </ng-container>
+    </section>
+  </main>
+  

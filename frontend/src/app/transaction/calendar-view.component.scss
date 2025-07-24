@@ -1,0 +1,14 @@
+.calendar{
+    display:grid;grid-template-columns:repeat(7,1fr);gap:4px;
+    .day-name{font-size:.75rem;text-align:center;color:#666}
+    .cell{
+      aspect-ratio:1/1;border:none;background:#f8f9fc;border-radius:8px;
+      position:relative;cursor:pointer;
+      &.other{opacity:.35}
+      .num{position:absolute;top:4px;left:6px;font-size:.7rem;color:#333}
+      .dot{position:absolute;bottom:5px;right:5px;font-size:.65rem;font-weight:600;
+        &.pos{color:#27ae60}&.neg{color:#e74c3c}}
+      &:hover{background:#e5eeff}
+    }
+  }
+  

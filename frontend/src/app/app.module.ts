@@ -13,17 +13,24 @@ import { HomeComponent } from './home/home.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { SettingsComponent } from './settings/settings.component';
 import { TrackingComponent } from './tracking/tracking.component';
+import { TransactionsModule } from './transaction/transactions.module';
+import { LoginComponent } from './login/login.component';
+import { AuthGuard } from './auth.guard';
 
 const routes: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'settings', component: SettingsComponent },
-  { path: 'tracking', component: TrackingComponent },
-  { path: '**', redirectTo: '' },
+  { path: 'login', component: LoginComponent },
+  { path: 'home',  component: HomeComponent, canActivate: [AuthGuard] },
+  { path: 'settings',  component: SettingsComponent,  canActivate: [AuthGuard] },
+  { path: 'tracking',  component: TrackingComponent,  canActivate: [AuthGuard] },
+  { path: 'transaction', loadChildren: () => import('./transaction/transactions.module')
+                                   .then(m => m.TransactionsModule), canActivate: [AuthGuard] },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '**', redirectTo: 'login' }
 ];
-
 @NgModule({
-  declarations: [AppComponent, HomeComponent, SettingsComponent, TrackingComponent],
+  declarations: [AppComponent, HomeComponent, SettingsComponent, TrackingComponent, LoginComponent ],
   imports: [
+    TransactionsModule,
     BrowserModule,
     FormsModule,
     ZXingScannerModule,

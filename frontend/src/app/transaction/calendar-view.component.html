@@ -1,0 +1,22 @@
+<div class="calendar">
+    <!-- weekday headers -->
+    <div class="day-name" *ngFor="let n of ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']">{{ n }}</div>
+  
+    <!-- day cells -->
+    <button
+      *ngFor="let d of days"
+      class="cell"
+      [class.other]="d < monthStart || d > monthEnd"
+      (click)="selectDate.emit(d)">
+  
+      <span class="num">{{ d.getDate() }}</span>
+  
+      <span
+        class="dot"
+        *ngIf="txTotal(d) !== 0"
+        [ngClass]="{ pos: txTotal(d) > 0, neg: txTotal(d) < 0 }">
+        {{ txTotal(d) | number:'1.0-0' }}
+      </span>
+    </button>
+  </div>
+  

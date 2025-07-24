@@ -251,7 +251,7 @@ export class TrackingComponent implements OnInit, AfterViewInit {
   }
 
   private initRollingAvgChart(): void {
-    const raw = Array.from({ length: 60 }, () => Math.random() * 200 + 20);
+    const raw = Array.from({ length: 60 }, () => Math.random() * 200 + 20); 
     const rolling: number[] = [];
     for (let i = 30; i < raw.length; i++) {
       const sum = raw.slice(i - 30, i).reduce((a, b) => a + b, 0);
