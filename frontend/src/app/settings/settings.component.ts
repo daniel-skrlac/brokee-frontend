@@ -1,16 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 interface Budget {
   category: string;
   amount: number;
 }
 
+
 @Component({
   selector: 'app-settings',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss'],
-  standalone: false
 })
 export class SettingsComponent implements OnInit {
   // — Basic info (read‑only) —

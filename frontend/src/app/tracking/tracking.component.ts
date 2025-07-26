@@ -12,7 +12,7 @@ import type {
 
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
-import { BaseChartDirective } from 'ng2-charts';
+import { BaseChartDirective, NgChartsModule } from 'ng2-charts';
 import { CryptoService, Crypto } from '../services/crypto.service';
 
 import { FunnelController, TrapezoidElement } from 'chartjs-chart-funnel';
@@ -30,9 +30,10 @@ type LooseChartOptions = {
 
 @Component({
   selector: 'app-tracking',
+  standalone: true,
+  imports: [CommonModule, NgChartsModule],
   templateUrl: './tracking.component.html',
   styleUrls: ['./tracking.component.scss'],
-  standalone: false,
 })
 export class TrackingComponent implements OnInit, AfterViewInit {
   private locations: Array<{ lat: number; lng: number }> = [

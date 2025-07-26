@@ -1,7 +1,4 @@
-import { platformBrowser } from '@angular/platform-browser';
-import { AppModule } from './app/app.module';
 import { Chart, registerables } from 'chart.js';
-import { KeycloakService } from './app/auth/keycloak.service';
 
 Chart.register(...registerables)
 

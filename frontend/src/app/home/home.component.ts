@@ -5,12 +5,17 @@ import { ChartData, ChartOptions } from 'chart.js';
 import { BarcodeFormat } from '@zxing/library';
 import Tesseract from 'tesseract.js';
 import { ViewChild, ElementRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ZXingScannerModule } from '@zxing/ngx-scanner';
+import { NgChartsModule } from 'ng2-charts';
 
 @Component({
   selector: 'app-home',
+  standalone: true,
+  imports: [CommonModule, FormsModule, ZXingScannerModule, NgChartsModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
-  standalone: false,
 })
 export class HomeComponent implements OnInit {
   @ViewChild('cashVideo', { static: false })

@@ -1,12 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { Transaction }       from '../model';
 import { startOfDay }        from 'date-fns';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { CalendarViewComponent } from './calendar-view.component';
 
 @Component({
-  selector   : 'app-transactions',
+  selector: 'app-transactions',
+  standalone: true,
+  imports: [CommonModule, FormsModule, CalendarViewComponent],
   templateUrl: './transaction.component.html',
-  styleUrls  : ['./transaction.component.scss'],
-  standalone:false
+  styleUrls: ['./transaction.component.scss'],
 })
 export class TransactionComponent implements OnInit {
   /* ------------ data ------------ */

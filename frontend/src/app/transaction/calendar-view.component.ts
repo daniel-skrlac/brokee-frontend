@@ -14,8 +14,9 @@ import {
   styleUrls  : ['./calendar-view.component.scss'],
 })
 export class CalendarViewComponent {
+  @Output() selectDate = new EventEmitter<Date>();
+
   @Input()  transactions: Transaction[] = [];
-  @Output() selectDate  = new EventEmitter<Date>();
 
   today      = new Date();
   monthStart = startOfMonth(this.today);
