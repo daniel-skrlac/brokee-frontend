@@ -1,68 +1,116 @@
 <main class="settings">
   <div class="settings__header">
-    <button class="btn-back" routerLink="/">←</button>
+    <button type="button" class="btn-back" aria-label="Go back" onclick="history.back()">
+      ←
+    </button>
+    <h1>Settings</h1>
   </div>
-
-  <h1>Settings</h1>
-
-  <!-- BASIC INFO -->
-  <section class="card">
-    <h2 class="card__title">Basic Info</h2>
-    <div class="field">
-      <label>Name</label>
-      <div class="read-only">{{ userName }}</div>
-    </div>
-    <div class="field">
-      <label>Email</label>
-      <div class="read-only">{{ userEmail }}</div>
-    </div>
-  </section>
-
-  <!-- PREFERENCES -->
-  <section class="card">
-    <h2 class="card__title">Preferences</h2>
-    <div class="field">
-      <label>Currency</label>
-      <select [(ngModel)]="currency" (ngModelChange)="onCurrencyChange()">
-        <option *ngFor="let c of currencies" [value]="c">{{ c }}</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Theme</label>
-      <select [(ngModel)]="theme" (ngModelChange)="onThemeChange()">
-        <option *ngFor="let t of themes" [value]="t">{{ t | titlecase }}</option>
-      </select>
-    </div>
-    <button class="btn-save" [disabled]="!prefsChanged" (click)="savePrefs()">Save Preferences</button>
-  </section>
-
-  <!-- MONTHLY BUDGETS -->
-  <section class="card">
-    <h2 class="card__title">Monthly Budgets</h2>
-    <div class="budget-list">
-      <div class="budget-row" *ngFor="let b of budgets; let i = index">
-        <input type="text" placeholder="Category" [(ngModel)]="b.category" (ngModelChange)="onBudgetChange()" />
-        <input type="number" placeholder="Amount" [(ngModel)]="b.amount" (ngModelChange)="onBudgetChange()" />
-        <button class="btn-remove" (click)="removeBudget(i)">✕</button>
+    <section class="card">
+      <h2 class="card__title">Preferences</h2>
+      <div class="field">
+        <label>Currency</label>
+        <select [(ngModel)]="currency" (ngModelChange)="prefsChanged = true">
+          <option *ngFor="let c of currencies" [value]="c">{{c}}</option>
+        </select>
       </div>
-    </div>
-    <div class="budget-actions">
-      <button class="btn-save" [disabled]="!budgetsChanged" (click)="saveBudgets()">Save Budgets</button>
-      <button class="btn-add" (click)="addBudget()">＋ Add Category</button>
-    </div>
-  </section>
+      <div class="field">
+        <label>Theme</label>
+        <select [(ngModel)]="theme" (ngModelChange)="prefsChanged = true">
+          <option *ngFor="let t of themes" [value]="t">{{t | titlecase}}</option>
+        </select>
+      </div>
+      <button class="btn-save" [disabled]="!prefsChanged" (click)="savePrefs()">
+        Save Preferences
+      </button>
+    </section>
 
-  <!-- SAVINGS GOAL -->
-  <section class="card">
-    <h2 class="card__title">Savings Goal</h2>
-    <div class="field">
-      <label>Target Amount</label>
-      <input type="number" [(ngModel)]="savingsGoal.amount" (ngModelChange)="onGoalChange()" />
-    </div>
-    <div class="field">
-      <label>By</label>
-      <input type="date" [(ngModel)]="savingsGoal.targetDate" (ngModelChange)="onGoalChange()" />
-    </div>
-    <button class="btn-save" [disabled]="!goalChanged" (click)="saveGoal()">Save Goal</button>
-  </section>
+    <!-- Existing Budgets -->
+    <section class="card">
+      <h2 class="card__title">Existing Budgets</h2>
+
+      <div class="field">
+        <label>Search</label>
+        <input type="text" placeholder="Category…" [(ngModel)]="budgetSearch"
+          (ngModelChange)="onBudgetSearch($event)" />
+      </div>
+
+      <!-- Bulk‑Delete action toolbar -->
+      <div class="budget-toolbar">
+        <button class="btn-delete" [disabled]="!selectedBudgetIds.length" (click)="deleteSelectedBudgets()">
+          Delete Selected ({{ selectedBudgetIds.length }})
+        </button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Category</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let b of existingBudgets">
+            <td>
+              <input type="checkbox" [checked]="b.selected" (change)="onBudgetToggle(b, $event)" />
+            </td>
+            <td>{{ b.categoryName }}</td>
+            <td>{{ b.amount | number:'1.2-2' }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="pager">
+        <button (click)="prevBudgetPage()" [disabled]="budgetPage===0">Prev</button>
+        <span>Page {{budgetPage+1}} of {{totalPages}}</span>
+        <button (click)="nextBudgetPage()" [disabled]="budgetPage+1>=totalPages">Next</button>
+      </div>
+    </section>
+
+    <!-- New Budgets -->
+    <section class="card">
+      <h2 class="card__title">Add New Budgets</h2>
+      <div class="budget-list">
+        <div class="budget-row" *ngFor="let row of newBudgetRows; index as i">
+          <select [(ngModel)]="row.categoryId" (ngModelChange)="onCategoryPicked(row)">
+            <option [ngValue]="null" disabled>Select…</option>
+            <option *ngFor="let c of categories" [ngValue]="c.id">
+              {{ c.name }}
+            </option>
+          </select>
+          <input type="number" [(ngModel)]="row.amount" placeholder="Amount" />
+          <button class="btn-remove" *ngIf="newBudgetRows.length > 1" (click)="removeNewRow(i)">
+            ✕
+          </button>
+        </div>
+      </div>
+      <div class="budget-actions">
+        <button class="btn-add" (click)="addNewRow()">+ Add another</button>
+        <button class="btn-save" [disabled]="!canSaveNewBudgets" (click)="saveNewBudgets()">
+          Save New Budgets
+        </button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card__title">Savings Goal</h2>
+
+      <div class="field">
+        <label>Target Amount</label>
+        <input type="number" [(ngModel)]="savingsGoal.amount" (ngModelChange)="goalChanged = true" />
+      </div>
+      <div class="field">
+        <label>By</label>
+        <input type="date" [(ngModel)]="savingsGoal.targetDate" (ngModelChange)="goalChanged = true" />
+      </div>
+
+      <div class="goal-actions">
+        <button class="btn-save" [disabled]="!goalChanged" (click)="saveGoal()">
+          Save Goal
+        </button>
+        <button class="btn-delete" *ngIf="savingsGoal.amount || goalChanged" (click)="deleteGoal()">
+          Delete Goal
+        </button>
+      </div>
+    </section>
 </main>

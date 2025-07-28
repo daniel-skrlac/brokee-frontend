@@ -7,17 +7,11 @@ export class KeycloakService {
     private keycloak!: Keycloak;
 
     init(): Promise<boolean> {
-        this.keycloak = new Keycloak(environment.keycloak);   
+        this.keycloak = new Keycloak(environment.keycloak);
 
         return this.keycloak.init({
             onLoad: 'login-required',
             checkLoginIframe: false
-        });
-    }
-
-    signup(): void {
-        this.keycloak.register({
-            redirectUri: window.location.origin
         });
     }
 
@@ -27,6 +21,19 @@ export class KeycloakService {
     logout() { this.keycloak.logout(); }
 
     getToken() { return this.keycloak.token; }
-    getUsername() { return this.keycloak.tokenParsed?.['preferred_username'] as string; }
+    getUsername(): string {
+        console.log(this.keycloak)
+        return (
+            (this.keycloak.tokenParsed as any)?.preferred_username ||
+            'Unknown'
+        );
+    }
+
+    getEmail(): string {
+        return (
+            (this.keycloak.tokenParsed as any)?.email ||
+            'no-email@unknown'
+        );
+    }
 
 }

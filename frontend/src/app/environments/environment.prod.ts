@@ -1,8 +1,7 @@
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:8080/api', 
+  production: true,
   keycloak: {
-    url: 'http://localhost:8081',
+    url: 'http://keycloak:8081',
     realm: 'brokee',
     clientId: 'brokee-frontend'
   }

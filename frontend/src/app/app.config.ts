@@ -1,7 +1,6 @@
 import { ApplicationConfig, isDevMode, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
+
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -11,37 +10,53 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 
 import { routes } from './app.routes';
 import { environment } from './environments/environment';
-import { provideKeycloak, includeBearerTokenInterceptor } from 'keycloak-angular';
-import { AuthInterceptor } from './auth/auth.interceptor';
+
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG, IncludeBearerTokenCondition, includeBearerTokenInterceptor, provideKeycloak } from 'keycloak-angular';
+
+
+const apiCondition: IncludeBearerTokenCondition = {
+  urlPattern: new RegExp(`^${environment.apiUrl}/.*`),
+  httpMethods: ['GET', 'POST', 'PATCH', 'DELETE']
+};
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes),
-    provideHttpClient(),
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true,
-    },
-
     provideKeycloak({
-      config: environment.keycloak,
+      config: {
+        url: environment.keycloak.url,
+        realm: environment.keycloak.realm,
+        clientId: environment.keycloak.clientId
+      },
       initOptions: {
         onLoad: 'login-required',
         checkLoginIframe: false,
-      },
+        pkceMethod: 'S256'
+      }
     }),
+    provideRouter(routes),
+
+    provideHttpClient(
+      withInterceptors([
+        includeBearerTokenInterceptor
+      ])
+    ),
+    {
+      provide: INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
+      useValue: [apiCondition]
+    },
 
     importProvidersFrom(
-      ServiceWorkerModule.register('ngsw-worker.js', {
-        enabled: !isDevMode(),
-        registrationStrategy: 'registerWhenStable:30000',
-      }),
       BrowserModule,
       FormsModule,
       ReactiveFormsModule,
       NgChartsModule,
-      ZXingScannerModule
+      ZXingScannerModule,
+      ServiceWorkerModule.register('ngsw-worker.js', {
+        enabled: !isDevMode(),
+        registrationStrategy: 'registerWhenStable:30000',
+      })
     ),
   ],
 };

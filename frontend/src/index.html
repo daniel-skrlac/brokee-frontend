@@ -1,34 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" name="mobile-web-app-capable" content="yes" />
-    <title>Frontend</title>
-    <base href="/" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.webmanifest" />
-    <meta name="theme-color" content="#4A90E2" />
+<head>
+  <meta charset="utf-8" name="mobile-web-app-capable" content="yes" />
+  <title>Frontend</title>
+  <base href="/" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- iOS support -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
-    <meta name="apple-mobile-web-app-title" content="My Finance App" />
-    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png" />
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#4A90E2" />
 
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <!-- iOS support -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="My Finance App" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png" />
 
-    <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet"
-    />
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-  </head>
-  <body>
-    <app-root></app-root>
-    <noscript>Please enable JavaScript to use this app.</noscript>
-  </body>
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function (OneSignal) {
+      await OneSignal.init({
+        appId: "94fae30e-1708-4d07-afec-4de9d53eaff9",
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <app-root></app-root>
+  <noscript>Please enable JavaScript to use this app.</noscript>
+</body>
+
 </html>

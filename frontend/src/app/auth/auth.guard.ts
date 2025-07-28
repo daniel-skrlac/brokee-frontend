@@ -10,6 +10,7 @@ export const keycloakAuthGuard = createAuthGuard(
   ): Promise<boolean | UrlTree> => {
 
     if (!data.authenticated) {
+      console.log(data.authenticated)
       await data.keycloak.login({
         redirectUri: window.location.origin + state.url
       });
