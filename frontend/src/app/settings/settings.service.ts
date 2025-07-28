@@ -9,7 +9,9 @@ import {
     BudgetResponseDTO,
     BudgetRequestDTO,
     SavingsGoalResponseDTO,
-    SavingsGoalRequestDTO
+    SavingsGoalRequestDTO,
+    BinanceCredentialDTO,
+    BinanceTokenDTO
 } from '../api/dtos';
 import { environment } from '../environments/environment';
 
@@ -68,6 +70,25 @@ export class SettingsService {
     deleteSavingsGoal(): Observable<ServiceResponseDTO<boolean>> {
         return this.http.delete<ServiceResponseDTO<boolean>>(
             `${this.base}/savings`
+        );
+    }
+
+    getBinanceCredentials(): Observable<ServiceResponseDTO<BinanceTokenDTO>> {
+        return this.http.get<ServiceResponseDTO<BinanceTokenDTO>>(
+            `${this.base}/binance`
+        );
+    }
+
+    upsertBinanceCredentials(dto: BinanceCredentialDTO)
+        : Observable<ServiceResponseDTO<BinanceTokenDTO>> {
+        return this.http.post<ServiceResponseDTO<BinanceTokenDTO>>(
+            `${this.base}/binance`, dto
+        );
+    }
+
+    deleteBinanceCredentials(): Observable<ServiceResponseDTO<boolean>> {
+        return this.http.delete<ServiceResponseDTO<boolean>>(
+            `${this.base}/binance`
         );
     }
 }

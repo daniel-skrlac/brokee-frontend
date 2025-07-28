@@ -5,112 +5,136 @@
     </button>
     <h1>Settings</h1>
   </div>
-    <section class="card">
-      <h2 class="card__title">Preferences</h2>
-      <div class="field">
-        <label>Currency</label>
-        <select [(ngModel)]="currency" (ngModelChange)="prefsChanged = true">
-          <option *ngFor="let c of currencies" [value]="c">{{c}}</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Theme</label>
-        <select [(ngModel)]="theme" (ngModelChange)="prefsChanged = true">
-          <option *ngFor="let t of themes" [value]="t">{{t | titlecase}}</option>
-        </select>
-      </div>
-      <button class="btn-save" [disabled]="!prefsChanged" (click)="savePrefs()">
-        Save Preferences
+  <section class="card">
+    <h2 class="card__title">Preferences</h2>
+    <div class="field">
+      <label>Currency</label>
+      <select [(ngModel)]="currency" (ngModelChange)="prefsChanged = true">
+        <option *ngFor="let c of currencies" [value]="c">{{c}}</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Theme</label>
+      <select [(ngModel)]="theme" (ngModelChange)="prefsChanged = true">
+        <option *ngFor="let t of themes" [value]="t">{{t | titlecase}}</option>
+      </select>
+    </div>
+    <button class="btn-save" [disabled]="!prefsChanged" (click)="savePrefs()">
+      Save Preferences
+    </button>
+  </section>
+
+  <!-- Existing Budgets -->
+  <section class="card">
+    <h2 class="card__title">Existing Budgets</h2>
+
+    <div class="field">
+      <label>Search</label>
+      <input type="text" placeholder="Category…" [(ngModel)]="budgetSearch" (ngModelChange)="onBudgetSearch($event)" />
+    </div>
+
+    <!-- Bulk‑Delete action toolbar -->
+    <div class="budget-toolbar">
+      <button class="btn-delete" [disabled]="!selectedBudgetIds.length" (click)="deleteSelectedBudgets()">
+        Delete Selected ({{ selectedBudgetIds.length }})
       </button>
-    </section>
+    </div>
 
-    <!-- Existing Budgets -->
-    <section class="card">
-      <h2 class="card__title">Existing Budgets</h2>
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>Category</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let b of existingBudgets">
+          <td>
+            <input type="checkbox" [checked]="b.selected" (change)="onBudgetToggle(b, $event)" />
+          </td>
+          <td>{{ b.categoryName }}</td>
+          <td>{{ b.amount | number:'1.2-2' }}</td>
+        </tr>
+      </tbody>
+    </table>
 
-      <div class="field">
-        <label>Search</label>
-        <input type="text" placeholder="Category…" [(ngModel)]="budgetSearch"
-          (ngModelChange)="onBudgetSearch($event)" />
-      </div>
+    <div class="pager">
+      <button (click)="prevBudgetPage()" [disabled]="budgetPage===0">Prev</button>
+      <span>Page {{budgetPage+1}} of {{totalPages}}</span>
+      <button (click)="nextBudgetPage()" [disabled]="budgetPage+1>=totalPages">Next</button>
+    </div>
+  </section>
 
-      <!-- Bulk‑Delete action toolbar -->
-      <div class="budget-toolbar">
-        <button class="btn-delete" [disabled]="!selectedBudgetIds.length" (click)="deleteSelectedBudgets()">
-          Delete Selected ({{ selectedBudgetIds.length }})
+  <!-- New Budgets -->
+  <section class="card">
+    <h2 class="card__title">Add New Budgets</h2>
+    <div class="budget-list">
+      <div class="budget-row" *ngFor="let row of newBudgetRows; index as i">
+        <select [(ngModel)]="row.categoryId" (ngModelChange)="onCategoryPicked(row)">
+          <option [ngValue]="null" disabled>Select…</option>
+          <option *ngFor="let c of categories" [ngValue]="c.id">
+            {{ c.name }}
+          </option>
+        </select>
+        <input type="number" [(ngModel)]="row.amount" placeholder="Amount" />
+        <button class="btn-remove" *ngIf="newBudgetRows.length > 1" (click)="removeNewRow(i)">
+          ✕
         </button>
       </div>
+    </div>
+    <div class="budget-actions">
+      <button class="btn-add" (click)="addNewRow()">+ Add another</button>
+      <button class="btn-save" [disabled]="!canSaveNewBudgets" (click)="saveNewBudgets()">
+        Save New Budgets
+      </button>
+    </div>
+  </section>
 
-      <table>
-        <thead>
-          <tr>
-            <th></th>
-            <th>Category</th>
-            <th>Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let b of existingBudgets">
-            <td>
-              <input type="checkbox" [checked]="b.selected" (change)="onBudgetToggle(b, $event)" />
-            </td>
-            <td>{{ b.categoryName }}</td>
-            <td>{{ b.amount | number:'1.2-2' }}</td>
-          </tr>
-        </tbody>
-      </table>
+  <section class="card">
+    <h2 class="card__title">Savings Goal</h2>
 
-      <div class="pager">
-        <button (click)="prevBudgetPage()" [disabled]="budgetPage===0">Prev</button>
-        <span>Page {{budgetPage+1}} of {{totalPages}}</span>
-        <button (click)="nextBudgetPage()" [disabled]="budgetPage+1>=totalPages">Next</button>
-      </div>
-    </section>
+    <div class="field">
+      <label>Target Amount</label>
+      <input type="number" [(ngModel)]="savingsGoal.amount" (ngModelChange)="goalChanged = true" />
+    </div>
+    <div class="field">
+      <label>By</label>
+      <input type="date" [(ngModel)]="savingsGoal.targetDate" (ngModelChange)="goalChanged = true" />
+    </div>
 
-    <!-- New Budgets -->
-    <section class="card">
-      <h2 class="card__title">Add New Budgets</h2>
-      <div class="budget-list">
-        <div class="budget-row" *ngFor="let row of newBudgetRows; index as i">
-          <select [(ngModel)]="row.categoryId" (ngModelChange)="onCategoryPicked(row)">
-            <option [ngValue]="null" disabled>Select…</option>
-            <option *ngFor="let c of categories" [ngValue]="c.id">
-              {{ c.name }}
-            </option>
-          </select>
-          <input type="number" [(ngModel)]="row.amount" placeholder="Amount" />
-          <button class="btn-remove" *ngIf="newBudgetRows.length > 1" (click)="removeNewRow(i)">
-            ✕
-          </button>
-        </div>
-      </div>
-      <div class="budget-actions">
-        <button class="btn-add" (click)="addNewRow()">+ Add another</button>
-        <button class="btn-save" [disabled]="!canSaveNewBudgets" (click)="saveNewBudgets()">
-          Save New Budgets
-        </button>
-      </div>
-    </section>
+    <div class="goal-actions">
+      <button class="btn-save" [disabled]="!goalChanged" (click)="saveGoal()">
+        Save Goal
+      </button>
+      <button class="btn-delete" *ngIf="savingsGoal.amount || goalChanged" (click)="deleteGoal()">
+        Delete Goal
+      </button>
+    </div>
+  </section>
 
-    <section class="card">
-      <h2 class="card__title">Savings Goal</h2>
+  <!-- Binance API Credentials -->
+  <section class="card">
+    <h2 class="card__title">Binance API Credentials</h2>
 
-      <div class="field">
-        <label>Target Amount</label>
-        <input type="number" [(ngModel)]="savingsGoal.amount" (ngModelChange)="goalChanged = true" />
-      </div>
-      <div class="field">
-        <label>By</label>
-        <input type="date" [(ngModel)]="savingsGoal.targetDate" (ngModelChange)="goalChanged = true" />
-      </div>
+    <div class="field">
+      <label>API Key</label>
+      <input type="text" [(ngModel)]="binanceApiKey" placeholder="Enter your Binance API key" />
+    </div>
 
-      <div class="goal-actions">
-        <button class="btn-save" [disabled]="!goalChanged" (click)="saveGoal()">
-          Save Goal
-        </button>
-        <button class="btn-delete" *ngIf="savingsGoal.amount || goalChanged" (click)="deleteGoal()">
-          Delete Goal
-        </button>
-      </div>
-    </section>
+    <div class="field">
+      <label>Secret Key</label>
+      <input type="password" [(ngModel)]="binanceSecretKey" placeholder="Enter your Binance secret key" />
+    </div>
+
+    <div class="goal-actions">
+      <button class="btn-save" [disabled]="!binanceApiKey || !binanceSecretKey" (click)="saveBinanceCredentials()">
+        Save Credentials
+      </button>
+
+      <button class="btn-delete" [disabled]="!hasBinanceCreds" (click)="deleteBinanceCredentials()">
+        Delete Credentials
+      </button>
+    </div>
+  </section>
 </main>

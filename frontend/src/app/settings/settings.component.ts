@@ -9,7 +9,8 @@ import { NotificationService } from '../services/notification.service';
 import {
   BudgetRequestDTO,
   SavingsGoalRequestDTO,
-  CategoryResponseDTO
+  CategoryResponseDTO,
+  BinanceCredentialDTO
 } from '../api/dtos';
 import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType, typeEventArgs, ReadyArgs } from 'keycloak-angular';
 import Keycloak from 'keycloak-js';
@@ -53,6 +54,10 @@ export class SettingsComponent implements OnInit {
 
   categories: CategoryResponseDTO[] = [];
 
+  binanceApiKey = '';
+  binanceSecretKey = '';
+  hasBinanceCreds = false;
+
   private readonly keycloak = inject(Keycloak);
   private readonly keycloakSignal = inject(KEYCLOAK_EVENT_SIGNAL);
 
@@ -95,8 +100,8 @@ export class SettingsComponent implements OnInit {
     });
 
     this.loadSavingsGoal();
+    this.loadBinanceCredentials();
   }
-
 
   loadExistingBudgets() {
     this.settingsApi.getBudgets(this.budgetPage, this.budgetSize).subscribe({
@@ -111,7 +116,7 @@ export class SettingsComponent implements OnInit {
             categoryId: b.categoryId,
             categoryName: this.findCategoryName(b.categoryId),
             amount: b.amount,
-            selected: false        // ← default to un‑checked
+            selected: false     
           }))
           .filter(b =>
             b.categoryName
@@ -270,6 +275,47 @@ export class SettingsComponent implements OnInit {
       error: () => {
         this.notifications.notify('Failed to delete savings goal', 'error');
       }
+    });
+  }
+
+  private loadBinanceCredentials() {
+    this.settingsApi.getBinanceCredentials().subscribe({
+      next: resp => {
+        if (resp.success && resp.data) {
+          this.binanceApiKey = resp.data.apiKey;
+          this.binanceSecretKey = resp.data.secretKey;
+          this.hasBinanceCreds = true;
+        }
+      },
+      error: () => this.notifications.notify('Failed to load Binance credentials', 'error')
+    });
+  }
+
+  saveBinanceCredentials() {
+    const dto: BinanceCredentialDTO = {
+      apiKey: this.binanceApiKey,
+      secretKey: this.binanceSecretKey
+    };
+    this.settingsApi.upsertBinanceCredentials(dto).subscribe({
+      next: resp => {
+        this.notifications.notify(resp.message, resp.success ? 'success' : 'error');
+        if (resp.success) this.hasBinanceCreds = true;
+      },
+      error: () => this.notifications.notify('Failed to save Binance credentials', 'error')
+    });
+  }
+
+  deleteBinanceCredentials() {
+    this.settingsApi.deleteBinanceCredentials().subscribe({
+      next: resp => {
+        this.notifications.notify(resp.message, resp.success ? 'success' : 'error');
+        if (resp.success) {
+          this.binanceApiKey = '';
+          this.binanceSecretKey = '';
+          this.hasBinanceCreds = false;
+        }
+      },
+      error: () => this.notifications.notify('Failed to delete Binance credentials', 'error')
     });
   }
 

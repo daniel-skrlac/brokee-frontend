@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-07-28 21:39:31.
+// Generated using typescript-generator version 3.2.1263 on 2025-07-28 22:45:56.
 
 export interface AccountSummaryDTO {
     topHoldings: HoldingDTO[];
@@ -14,6 +14,14 @@ export interface BinanceAccountDTO {
 export interface BinanceCredentialDTO {
     apiKey: string;
     secretKey: string;
+}
+
+export interface BinanceTokenDTO {
+    id: number;
+    apiKey: string;
+    secretKey: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface CoinInfoDTO {
