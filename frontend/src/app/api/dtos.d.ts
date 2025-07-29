@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-07-28 22:45:56.
+// Generated using typescript-generator version 3.2.1263 on 2025-07-29 18:38:01.
 
 export interface AccountSummaryDTO {
     topHoldings: HoldingDTO[];
@@ -156,7 +156,7 @@ export interface PlanResponseDTO {
 export interface QuickTxRequestDTO {
     type: string;
     amount: number;
-    categoryId: number;
+    categoryId?: number;
     txTime: Date;
 }
 

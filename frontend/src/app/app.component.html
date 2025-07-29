@@ -1,16 +1,15 @@
-<app-notifications></app-notifications>
+<!-- the app’s pages -->
 <router-outlet></router-outlet>
 
+<!-- bottom navigation (hidden on auth screens) -->
 <nav class="bottom-nav card--glass">
 
-  <a routerLink="/transaction" routerLinkActive="active"  class="nav-item">
+  <a routerLink="/transaction" routerLinkActive="active" class="nav-item">
     <i class="material-icons icon">list_alt</i>
     <span class="label">Transactions</span>
   </a>
 
-  <a routerLink="/" routerLinkActive="active"
-     [routerLinkActiveOptions]="{ exact: true }"
-     class="nav-item home">
+  <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item home">
     <i class="material-icons icon">home</i>
     <span class="label">Home</span>
   </a>

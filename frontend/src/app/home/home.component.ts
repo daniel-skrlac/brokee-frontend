@@ -1,325 +1,413 @@
-import { Component, OnInit } from '@angular/core';
-import { DashboardService } from '../services/dashboard.service';
-import { DashboardData } from '../models/dashboard';
-import { ChartData, ChartOptions } from 'chart.js';
-import { BarcodeFormat } from '@zxing/library';
-import Tesseract from 'tesseract.js';
-import { ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { NgChartsModule } from 'ng2-charts';
+import { ChartData, ChartOptions } from 'chart.js';
+import { ZXingScannerModule } from '@zxing/ngx-scanner';
+import { BarcodeFormat } from '@zxing/library';
+import Tesseract from 'tesseract.js';
+
+import { HomeService } from './home.service';
+import { CategoryService } from '../settings/category.service';
+import { NotificationService } from '../services/notification.service';
+
+import {
+  TxResponseDTO,
+  QuickTxRequestDTO,
+  CategoryResponseDTO,
+  BudgetResponseDTO
+} from '../api/dtos';
+import {
+  KEYCLOAK_EVENT_SIGNAL,
+  KeycloakEventType,
+  typeEventArgs,
+  ReadyArgs
+} from 'keycloak-angular';
+import Keycloak from 'keycloak-js';
+import { RouterLink, RouterModule } from '@angular/router';
+import { ThemeService } from '../theme.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, ZXingScannerModule, NgChartsModule],
+  imports: [CommonModule, FormsModule, NgChartsModule, ZXingScannerModule, RouterModule],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss'],
+  styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-  @ViewChild('cashVideo', { static: false })
-  cashVideo!: ElementRef<HTMLVideoElement>;
+  themes = ['light', 'dark'] as const;
+  theme: 'light' | 'dark' = "light";
 
-  private ocrIntervalId: any;
-  showCashModal = false;
-  ocrRunning = false;
-  recognizedValue: number | null = null;
+  chartLoading = false;
+  chartError: string | null = null;
 
-  allowedFormats = [
-    BarcodeFormat.QR_CODE,
-    BarcodeFormat.CODE_128,
-    BarcodeFormat.EAN_13,
-    BarcodeFormat.EAN_8,
-    BarcodeFormat.CODE_39,
-    BarcodeFormat.CODE_93,
-    BarcodeFormat.UPC_A,
-    BarcodeFormat.UPC_E,
-  ];
-  showScanner = false;
-  qrText: string | null = null;
-  extractedPrice: number | null = null;
-
-  showAddModal = false;
-  newExpense = {
-    description: '',
-    amount: null,
-    date: this.toInputDate(new Date()),
-    category: '',
-  };
-
-  dashboard!: DashboardData;
-  loading = true;
-  error: string | null = null;
-
+  userName = '';
   today = new Date();
-  userName = 'Daniel';
-  budgetUsage = 65;
-  scheduledCount = 3;
+
+  balance = 0;
+  totalBudget = 0;
+  budgetUsedPercent = 0;
+  upcomingCount = 0;
 
   viewMode: 'byday' | 'daily' | 'monthly' = 'byday';
   selectedDay = new Date();
-  selectedDayStr = this.toInputDate(this.selectedDay);
-
-  public chartData!: ChartData<'line', number[], string>;
+  chartData!: ChartData<'line', number[], string>;
   chartOptions: ChartOptions = {
     responsive: true,
-    plugins: {
-      legend: { display: false },
-    },
+    plugins: { legend: { display: false } },
     scales: {
-      x: {
-        ticks: { maxRotation: 0, autoSkip: true },
-      },
-      y: {
-        beginAtZero: true,
-      },
-    },
+      x: { ticks: { maxRotation: 0, autoSkip: true } },
+      y: { beginAtZero: true }
+    }
   };
 
-  recentTransactions = [
-    {
-      icon: '🛒',
-      description: 'Grocery Store',
-      date: new Date(2025, 6, 20),
-      amount: -45.3,
-    },
-    {
-      icon: '☕️',
-      description: 'Coffee Shop',
-      date: new Date(2025, 6, 19),
-      amount: -4.5,
-    },
-    {
-      icon: '💼',
-      description: 'Salary',
-      date: new Date(2025, 6, 18),
-      amount: 2500.0,
-    },
-    {
-      icon: '🚗',
-      description: 'Gas Station',
-      date: new Date(2025, 6, 17),
-      amount: -60.0,
-    },
-    {
-      icon: '🎬',
-      description: 'Movie Night',
-      date: new Date(2025, 6, 16),
-      amount: -12.0,
-    },
-  ];
-  upcomingBills = [
-    { name: 'Electricity', date: new Date(2025, 6, 25), amount: 120 },
-    { name: 'Rent', date: new Date(2025, 7, 1), amount: 700 },
-  ];
+  loadingChart = true;
 
-  constructor(private svc: DashboardService) {}
+  recentTx: TxResponseDTO[] = [];
 
-  ngOnInit() {
-    this.svc.getDashboard().subscribe({
-      next: (resp) => {
-        this.loading = false;
-        if (resp.success) {
-          this.dashboard = resp.data;
-          this.updateChart();
-        } else {
-          this.error = resp.message;
-        }
-      },
-      error: (_) => {
-        this.loading = false;
-        this.error = 'Failed loading';
-      },
+  categories: CategoryResponseDTO[] = [];
+
+  showQuickModal = false;
+  quickTx: QuickTxRequestDTO = {
+    amount: 0,
+    type: 'E',
+    txTime: new Date(),
+    categoryId: null!
+  };
+
+  showQrModal = false;
+  qrText: string | null = null;
+  extractedPrice: number | null = null;
+  qrCategoryId: number | null = null;
+
+  @ViewChild('cashVideo') cashVideo!: ElementRef<HTMLVideoElement>;
+  showCashModal = false;
+  recognizedValue: number | null = null;
+  cashType: 'E' | 'I' = 'E';
+  ocrIntervalId: any;
+  ocrRunning = false;
+  allowedFormats = [BarcodeFormat.QR_CODE];
+
+  private readonly keycloak = inject(Keycloak);
+  private readonly keycloakSignal = inject(KEYCLOAK_EVENT_SIGNAL);
+  private themeService = inject(ThemeService);
+
+  constructor(
+    private homeApi: HomeService,
+    private categoryApi: CategoryService,
+    private notifications: NotificationService
+  ) {
+    effect(() => {
+      const e = this.keycloakSignal();
+      if (e.type === KeycloakEventType.Ready && typeEventArgs<ReadyArgs>(e.args)) {
+        this.keycloak.loadUserProfile()
+          .then(p => this.userName = p.username ?? 'Unknown');
+      }
     });
   }
 
-  toggle(mode: 'byday' | 'daily' | 'monthly') {
-    this.viewMode = mode;
+  ngOnInit() {
+    this.categoryApi.listAll().subscribe(r => {
+      if (r.success) this.categories = r.data;
+    });
+
+    this.loadBalance();
+    this.loadRecent();
     this.updateChart();
+    this.loadBudgetSummary();
+    this.loadUpcomingCount();
+
+    this.theme = this.themeService.initTheme();
   }
 
-  onDayChange(value?: string) {
-    if (!value) {
-      return;
-    }
-    this.selectedDay = new Date(value);
-    this.selectedDayStr = value;
-    this.updateChart();
+  private loadBalance() {
+    this.homeApi.getBalance().subscribe(r => {
+      if (r.success) this.balance = r.data;
+      else this.notifications.notify(r.message, 'error');
+    });
+  }
+
+  private loadRecent() {
+    this.homeApi.getRecent(5).subscribe(r => {
+      if (r.success) this.recentTx = r.data;
+    });
+  }
+
+  private loadBudgetSummary() {
+    this.homeApi.getAllBudgets().subscribe(bR => {
+      if (!bR.success) {
+        return;
+      }
+
+      const all = bR.data.items as BudgetResponseDTO[];
+
+      const budgetedCategoryIds = all.filter(b => b.amount > 0).map(b => b.categoryId);
+      this.totalBudget = all.reduce((sum, b) => sum + b.amount, 0);
+
+      const monthStart = this.toIsoTimestamp(new Date(this.today.getFullYear(), this.today.getMonth(), 1));
+      const lastDay = new Date(this.today.getFullYear(), this.today.getMonth() + 1, 0);
+      lastDay.setHours(23, 59, 59, 999);
+      const monthEnd = this.toIsoTimestamp(lastDay);
+
+      this.homeApi.getByDateRange(monthStart, monthEnd).subscribe(tR => {
+        if (!tR.success) {
+          return;
+        }
+
+        const txs = tR.data;
+        const spent = txs
+          .filter(tx => tx.type === 'E' && budgetedCategoryIds.includes(tx.categoryId))
+          .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+
+        this.budgetUsedPercent = this.totalBudget > 0
+          ? Math.round((spent / this.totalBudget) * 100)
+          : 0;
+      });
+    });
+  }
+
+  private loadUpcomingCount() {
+    const today = new Date();
+    const todayStr = this.toInputDate(today);
+
+    // end of month as a Date, then format
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    const endStr = this.toInputDate(endOfMonth);
+
+    this.homeApi.getUpcomingBills(todayStr, endStr)
+      .subscribe(r => {
+        if (!r.success) return;
+        this.upcomingCount = r.data.filter(p =>
+          new Date(p.dueDate) >= today
+        ).length;
+      });
+  }
+
+  toggleView(m: 'byday' | 'daily' | 'monthly') {
+    this.viewMode = m; this.updateChart();
   }
 
   updateChart() {
-    if (this.viewMode === 'daily') {
-      const m: Record<string, number> = {};
-      this.dashboard.dailyExpenses.forEach((p) => {
-        const wk = new Date(p.date).toLocaleDateString('en-US', {
-          weekday: 'short',
-        });
-        m[wk] = (m[wk] || 0) + p.amount;
+    this.loadingChart = true;
+    this.chartError = null;
+
+    if (this.viewMode === 'byday') {
+      const start = this.toLocalIso(this.selectedDay, 0, 0);
+      const end = this.toLocalIso(this.selectedDay, 23, 59);
+
+      this.homeApi.getByDateRange(start, end).subscribe(r => {
+        if (!r.success) return;
+
+        const labels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+        const net = labels.map((_, h) =>
+          r.data
+            .filter(tx => new Date(tx.txTime).getHours() === h)
+            .reduce((sum, tx) =>
+              tx.type === 'E' ? sum - tx.amount : sum + tx.amount
+              , 0)
+        );
+
+        const data = net.map(Math.abs);
+        const colors = net.map(n => n < 0 ? '#dc3545' : '#4a90e2');
+
+        this.chartData = {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: colors,
+            borderColor: colors,
+            borderWidth: 1
+          }]
+        };
+        this.loadingChart = false;
       });
-      const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      this.chartData = {
-        labels: weekdays,
-        datasets: [
-          {
-            data: weekdays.map((d) => m[d] || 0),
-            fill: false,
-            tension: 0.3,
-            borderWidth: 2,
-          },
-        ],
-      };
-    } else if (this.viewMode === 'byday') {
-      const hrs = Array.from({ length: 24 }, (_, h) => h);
-      this.chartData = {
-        labels: hrs.map((h) => (h < 10 ? '0' : '') + h + ':00'),
-        datasets: [
-          {
-            data: hrs.map(() => Math.floor(Math.random() * 50 + 5)),
-            fill: false,
-            tension: 0.3,
-            borderWidth: 2,
-          },
-        ],
-      };
+
+    } else if (this.viewMode === 'daily') {
+      this.homeApi.getDailyGraph(7).subscribe(r => {
+        if (!r.success) return;
+
+        const entries = Object.entries(r.data) as [string, number][];
+        const labels = entries.map(([day]) => day);
+        const net = entries.map(([, val]) => val);
+
+        const data = net.map(Math.abs);
+        const colors = net.map(n => n < 0 ? '#dc3545' : '#4a90e2');
+
+        this.chartData = {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: colors,
+            borderColor: colors,
+            borderWidth: 1
+          }]
+        };
+        this.loadingChart = false;
+      });
+
     } else {
-      const pts = this.dashboard.monthlyExpenses;
-      this.chartData = {
-        labels: pts.map((p) => p.month!),
-        datasets: [
-          {
-            data: pts.map((p) => p.amount),
-            fill: false,
-            tension: 0.3,
-            borderWidth: 2,
-          },
-        ],
-      };
+      const year = this.today.getFullYear();
+      this.homeApi.getMonthlyGraph(year).subscribe(r => {
+        if (!r.success) return;
+
+        const entries = Object.entries(r.data) as [string, number][];
+        const labels = entries.map(([mon]) => mon);
+        const net = entries.map(([, val]) => val);
+
+        const data = net.map(Math.abs);
+        const colors = net.map(n => n < 0 ? '#dc3545' : '#4a90e2');
+
+        this.chartData = {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: colors,
+            borderColor: colors,
+            borderWidth: 1
+          }]
+        };
+        this.loadingChart = false;
+      });
     }
   }
 
-  private toInputDate(d: Date) {
-    return d.toISOString().slice(0, 10);
+  openQuick() {
+    this.quickTx = { amount: 0, type: 'E', txTime: new Date(), categoryId: null! };
+    this.showQuickModal = true;
   }
-
-  onAdd() {
-    this.showAddModal = true;
-  }
-
-  closeAddModal() {
-    this.showAddModal = false;
-  }
-
-  submitExpense() {
-    console.log('Expense submitted:', this.newExpense);
-    // TODO: Add real logic here (save to backend, update list, etc.)
-    this.closeAddModal();
-  }
-
-  onScanQR() {
-    this.qrText = null;
-    this.extractedPrice = null;
-    this.showScanner = true;
-  }
-
-  onCodeResult(resultString: string) {
-    this.qrText = resultString;
-    const m = /price\s*[:=]\s*([0-9]+(?:\.[0-9]{1,2})?)/i.exec(resultString);
-    if (m) {
-      this.extractedPrice = parseFloat(m[1]);
-    }
-  }
-
-  closeScanner() {
-    this.showScanner = false;
-  }
-
-  saveScanned() {
-    // TODO: now you have this.extractedPrice → send to your form, etc.
-    console.log('Saving price:', this.extractedPrice);
-    this.closeScanner();
-  }
-
-  onScanCash() {
-    this.recognizedValue = null;
-    this.showCashModal = true;
-    this.startCamera().then(() => {
-      this.ocrIntervalId = setInterval(() => this.captureAndRead(), 300);
+  saveQuick() {
+    this.homeApi.quickAdd(this.quickTx).subscribe(r => {
+      this.notifications.notify(r.message, r.success ? 'success' : 'error');
+      if (r.success) {
+        this.showQuickModal = false;
+        this.loadBalance(); this.loadRecent(); this.updateChart();
+      }
     });
   }
 
-  resetCashScan() {
-    this.recognizedValue = null;
-    this.restartCashScanner();
+  openQr() {
+    this.qrText = null;
+    this.extractedPrice = null;
+    this.qrCategoryId = this.categories.find(c => c.name === 'Groceries')?.id ?? null;
+    this.showQrModal = true;
   }
 
-  private async startCamera() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
-      });
-      this.cashVideo.nativeElement.srcObject = stream;
-    } catch (err) {}
-  }
+  onQrResult(text: string) {
+    this.qrText = text;
 
-  private async restartCashScanner() {
-    clearInterval(this.ocrIntervalId);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
-      });
-      this.cashVideo.nativeElement.srcObject = stream;
-
-      // every 2s, grab a frame and run OCR
-      this.ocrIntervalId = setInterval(() => this.captureAndRead(), 300);
-    } catch (err) {}
-  }
-
-  private async captureAndRead() {
-    const video = this.cashVideo.nativeElement;
-    // ensure video is ready and not already running OCR
-    if (!video.videoWidth || !video.videoHeight || this.ocrRunning) {
+    const iznMatch = /[?&]izn=([0-9]+,[0-9]{1,2})/.exec(text);
+    if (iznMatch) {
+      this.extractedPrice = parseFloat(iznMatch[1].replace(',', '.'));
       return;
     }
 
-    this.ocrRunning = true;
+    const m = /price\s*[:=]\s*([0-9]+(?:\.[0-9]{1,2})?)/i.exec(text);
+    this.extractedPrice = m ? parseFloat(m[1]) : null;
+  }
 
-    // draw current frame to off-screen canvas
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext('2d')!.drawImage(video, 0, 0);
-
-    try {
-      const { data } = await Tesseract.recognize(canvas, 'eng');
-      const text = data.text.replace(/\s+/g, ' ');
-      const match = /([0-9]{2,3})/.exec(text);
-      if (match) {
-        this.recognizedValue = parseInt(match[1], 10);
-        clearInterval(this.ocrIntervalId); // stop further OCR
+  saveQr() {
+    if (this.extractedPrice == null || this.qrCategoryId == null) return;
+    const dto: QuickTxRequestDTO = {
+      amount: this.extractedPrice,
+      type: 'E',
+      txTime: new Date(),
+      categoryId: this.qrCategoryId
+    };
+    this.homeApi.quickAdd(dto).subscribe(r => {
+      this.notifications.notify(r.message, r.success ? 'success' : 'error');
+      if (r.success) {
+        this.showQrModal = false;
+        this.loadBalance(); this.loadRecent(); this.updateChart();
       }
-    } catch {
-    } finally {
-      this.ocrRunning = false;
-    }
+    });
+  }
+
+  restartOCR() {
+    this.recognizedValue = null;
+    clearInterval(this.ocrIntervalId);
+    this.ocrIntervalId = setInterval(() => this.captureOCR(), 100);
+  }
+
+  openCash() {
+    this.recognizedValue = null;
+    this.cashType = 'E';
+    this.showCashModal = true;
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      .then(s => this.cashVideo.nativeElement.srcObject = s)
+      .then(() => this.ocrIntervalId = setInterval(() => this.captureOCR(), 100));
+  }
+
+  private async captureOCR() {
+    const vid = this.cashVideo.nativeElement;
+    if (!vid.videoWidth || !vid.videoHeight || this.ocrRunning) return;
+    this.ocrRunning = true;
+    const c = document.createElement('canvas');
+    c.width = vid.videoWidth; c.height = vid.videoHeight;
+    c.getContext('2d')!.drawImage(vid, 0, 0);
+    try {
+      const { data } = await Tesseract.recognize(c, 'eng');
+      const txt = data.text.replace(/\s+/g, ' ');
+      const m = /([0-9]{2,3}(?:\.[0-9]{1,2})?)/.exec(txt);
+      if (m) { this.recognizedValue = parseFloat(m[1]); clearInterval(this.ocrIntervalId); }
+    } catch { }
+    finally { this.ocrRunning = false; }
   }
 
   saveCash() {
-    if (this.recognizedValue !== null) {
-      console.log('Saving cash amount:', this.recognizedValue);
-      this.closeCash();
-    }
+    if (this.recognizedValue == null) return;
+    const dto: QuickTxRequestDTO = {
+      amount: this.recognizedValue,
+      type: this.cashType,
+      txTime: new Date(),
+      categoryId: null!
+    };
+    this.homeApi.quickAdd(dto).subscribe(r => {
+      this.notifications.notify(r.message, r.success ? 'success' : 'error');
+      if (r.success) { this.closeCash(); this.loadBalance(); this.loadRecent(); this.updateChart(); }
+    });
   }
 
   closeCash() {
-    this.showCashModal = false;
     clearInterval(this.ocrIntervalId);
-
-    const stream = this.cashVideo.nativeElement.srcObject as MediaStream | null;
-    if (stream) {
-      stream.getTracks().forEach((track: MediaStreamTrack) => {
-        track.stop();
-      });
-    }
+    const s = this.cashVideo.nativeElement.srcObject as MediaStream;
+    s.getTracks().forEach(t => t.stop());
+    this.showCashModal = false;
   }
+
+  onDayChange(value: string) {
+    this.selectedDay = new Date(value);
+    this.updateChart();
+  }
+
+  toInputDate(d: Date) { return d.toISOString().slice(0, 10); }
+
+  toIsoTimestamp(d: Date) {
+    return d.toISOString();
+  }
+
+  getCategoryName(id: number) {
+    return this.categories.find(c => c.id === id)?.name ?? '—';
+  }
+
+  private toLocalIso(d: Date, hours: number, minutes: number): string {
+    const dt = new Date(d);
+    dt.setHours(hours, minutes, 0, 0);
+
+    const pad = (n: number) => n.toString().padStart(2, '0');
+
+    const offsetMin = -dt.getTimezoneOffset();
+    const sign = offsetMin >= 0 ? '+' : '-';
+    const absMin = Math.abs(offsetMin);
+    const hOff = pad(Math.floor(absMin / 60));
+    const mOff = pad(absMin % 60);
+
+    const year = dt.getFullYear();
+    const month = pad(dt.getMonth() + 1);
+    const day = pad(dt.getDate());
+    const hr = pad(dt.getHours());
+    const min = pad(dt.getMinutes());
+
+    return `${year}-${month}-${day}T${hr}:${min}:00${sign}${hOff}:${mOff}`;
+  }
+
 }

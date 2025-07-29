@@ -1,18 +1,23 @@
-$bg: #f2f4f8;
-$glass: rgba(255, 255, 255, 0.7);
-$shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-$radius: 16px;
-$primary: #4a90e2;
-$red: #dc3545;
-$text: #1a1a1a;
-$text-muted: #666;
-$primary: #4a90e2;
-$bg-modal: #fff;
-$backdrop: rgba(0, 0, 0, 0.6);
-$radius: 16px;
-$shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+$bg: var(--bg);
+$glass: var(--glass);
+$shadow: var(--shadow);
+$radius: var(--radius);
+$primary: var(--primary);
+$primary-light: var(--primary-light);
+$primary-dark: var(--primary-dark);
+$red: var(--red, #dc3545);
+$text: var(--text);
+$text-muted: var(--text-muted);
+$border: var(--border);
+$border-light: var(--border-light);
+$border-lighter: var(--border-lighter);
+$backdrop: var(--backdrop);
 
-@use "sass:color";
+$form-bg: var(--form-bg);
+$form-bg-light: var(--form-bg-light);
+$form-text: var(--form-text);
+$form-border: var(--form-border);
+$form-placeholder: var(--form-placeholder);
 
 .home {
   display: flex;
@@ -34,73 +39,79 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: $backdrop;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+
+  .modal {
+    background: $form-bg;
+    border-radius: $radius;
+    padding: 24px;
+    width: 90%;
+    max-width: 360px;
+    box-shadow: $shadow;
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.25rem;
+      color: $text;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      input,
+      select {
+        padding: 10px;
+        font-size: 0.95rem;
+        background: $form-bg;
+        color: $form-text;
+        border: 1px solid $form-border;
+        border-radius: 8px;
+
+        &::placeholder {
+          color: $form-placeholder;
+        }
+      }
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+
+      button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+
+        &:first-child {
+          background: $border-light;
+          color: $text;
+        }
+
+        &:last-child {
+          background: $primary;
+          color: #fff;
+        }
+      }
+    }
+  }
 }
 
-.modal-backdrop .modal {
-  background: #fff;
-  border-radius: 16px;
-  padding: 24px;
-  width: 90%;
-  max-width: 360px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-}
-
-.modal-backdrop .modal h2 {
-  margin-top: 0;
-  font-size: 1.25rem;
-}
-
-.modal-backdrop .modal form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.modal-backdrop .modal input,
-.modal-backdrop .modal select {
-  padding: 10px;
-  font-size: 0.95rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
-
-.modal-backdrop .modal .modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.modal-backdrop .modal .modal-actions button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.modal-backdrop .modal .modal-actions button:first-child {
-  background: #e0e0e0;
-  color: #333;
-}
-
-.modal-backdrop .modal .modal-actions button:last-child {
-  background: #4a90e2;
-  color: #fff;
-}
-
-//SCANNER
 .modal--scanner {
-  background: #fff;
+  background: $form-bg;
   border-radius: $radius;
   padding: 16px;
   width: 92%;
   max-width: 360px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: $shadow;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -109,9 +120,9 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     margin: 0;
     font-size: 1.2rem;
     text-align: center;
+    color: $text;
   }
 
-  /* Camera controls row */
   .scanner-controls {
     display: flex;
     gap: 8px;
@@ -120,22 +131,24 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       flex: 2;
       padding: 6px 8px;
       border-radius: 6px;
-      border: 1px solid #ccc;
-      background: #fff;
+      border: 1px solid $form-border;
+      background: $form-bg;
       font-size: 0.9rem;
+      color: $form-text;
     }
 
     .btn-lite {
       flex: 1;
-      background: #f0f0f0;
+      background: $form-bg-light;
       border: none;
       border-radius: 6px;
       padding: 6px;
       font-size: 0.9rem;
       cursor: pointer;
       transition: background 0.2s;
+
       &:hover {
-        background: color.adjust(#f0f0f0, $lightness: 5%);
+        background: $form-bg;
       }
     }
   }
@@ -162,10 +175,11 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   .scan-info {
     position: relative;
     font-size: 0.9rem;
-    color: #333;
-    padding-right: 40px; // make room for the button
+    color: $text;
+    padding-right: 40px;
 
-    p, .scan-result {
+    p,
+    .scan-result {
       margin: 4px 0;
     }
 
@@ -187,13 +201,12 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       margin-left: 8px;
 
       &:hover {
-        color: color.adjust($primary, $lightness: -10%);
+        color: $primary-dark;
         transform: rotate(20deg);
       }
     }
   }
 
-  /* Action buttons */
   .modal-actions {
     display: flex;
     gap: 8px;
@@ -207,33 +220,27 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       font-size: 0.95rem;
       transition: background 0.2s, transform 0.1s, opacity 0.2s;
 
-      /* Cancel button style (always active) */
       &:first-child {
-        background: #e0e0e0;
-        color: #333;
-        cursor: pointer;
+        background: $border-light;
+        color: $text;
 
         &:hover {
-          background: darken(#e0e0e0, 5%);
+          background: $border;
         }
       }
 
-      /* Save button */
       &:last-child {
-        background: $primary; // your main color
+        background: $primary;
         color: #fff;
-        cursor: pointer;
 
-        /* Disabled state: */
         &:disabled {
-          background: #ccc; // grey
-          color: #666; // muted text
+          background: $border-lighter;
+          color: $text-muted;
           cursor: not-allowed;
           opacity: 0.7;
-          transform: none; // no lift
+          transform: none;
         }
 
-        /* Hover lift only when enabled */
         &:not(:disabled):hover {
           transform: translateY(-2px);
         }
@@ -251,13 +258,10 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 
 .home__header {
   position: relative;
-  padding: 24px 16px 80px; // extra bottom padding for wave
-  background: linear-gradient(
-    135deg,
-    #3366ff,
-    // richer blue
-    #33ccff // turquoise
-  );
+  padding: 24px 16px 80px;
+  background: linear-gradient(135deg,
+      #3366ff,
+      #33ccff);
   border-radius: 28px;
   color: #fff;
   border-bottom-left-radius: 24px;
@@ -271,46 +275,45 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     align-items: center;
   }
 
-  // Frosted‑glass profile card
   .card--frosted {
     display: flex;
     align-items: center;
     gap: 12px;
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba($glass, 0.25);
     backdrop-filter: blur(8px);
     padding: 12px 16px;
     border-radius: 20px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  }
 
-  .home__avatar {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.8);
-    object-fit: cover;
-  }
+    .home__avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 2px solid rgba(#fff, 0.8);
+      object-fit: cover;
+    }
 
-  .home__profile-info {
-    display: flex;
-    flex-direction: column;
-  }
+    .home__profile-info {
+      display: flex;
+      flex-direction: column;
 
-  .home__greeting {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-    line-height: 1.2;
-  }
+      .home__greeting {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 1.2;
+      }
 
-  .home__date {
-    margin: 4px 0 0;
-    font-size: 14px;
-    opacity: 0.9;
+      .home__date {
+        margin: 4px 0 0;
+        font-size: 14px;
+        opacity: 0.9;
+      }
+    }
   }
 
   .home__btn-settings {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(#fff, 0.25);
     border: none;
     width: 40px;
     height: 40px;
@@ -324,7 +327,7 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     transition: background 0.2s, transform 0.2s;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.35);
+      background: rgba(#fff, 0.35);
       transform: translateY(-2px);
     }
   }
@@ -335,7 +338,7 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     left: 0;
     width: 100%;
     height: 80px;
-    background: #f2f4f8; // same as page bg
+    background: $bg;
     clip-path: ellipse(100% 40% at 50% 100%);
   }
 }
@@ -344,8 +347,8 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  margin-top: -40px;
-  margin-bottom: 24px;
+  margin: -40px 0 24px;
+
   .card {
     background: $glass;
     backdrop-filter: blur(10px);
@@ -353,22 +356,26 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     box-shadow: $shadow;
     padding: 12px;
     text-align: center;
+
     &__label {
       font-size: 12px;
       color: $text-muted;
     }
+
     &__value {
       font-size: 18px;
       font-weight: 600;
       margin: 4px 0;
     }
   }
+
   .progress {
     height: 6px;
-    background: #e0e0e0;
+    background: $border-light;
     border-radius: 3px;
     overflow: hidden;
     margin-top: 6px;
+
     &__bar {
       height: 100%;
       background: $primary;
@@ -382,41 +389,47 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     gap: 4px;
     margin: 0 auto 8px;
     max-width: 300px;
+
     button {
       flex: 1;
       padding: 8px 0;
       font-size: 14px;
       border-radius: 18px;
       border: none;
-      background: #e8e8e8;
+      background: $border-lighter;
       color: $text-muted;
       cursor: pointer;
       transition: background 0.3s, color 0.3s;
+
       &.active {
         background: $primary;
         color: #fff;
       }
     }
   }
+
   .date-picker-inline {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 8px;
     margin-bottom: 16px;
+
     .date-input {
       padding: 8px 12px;
       font-size: 14px;
       border: none;
       border-radius: 18px;
-      background: #e8e8e8;
+      background: $border-lighter;
       cursor: pointer;
       transition: background 0.2s;
+
       &:hover {
-        background: color.adjust(#e8e8e8, $lightness: 5%);
+        background: $border-light;
       }
     }
   }
+
   .chart-card {
     padding: 12px;
     background: $glass;
@@ -429,16 +442,16 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 
 .home__actions {
   display: flex;
-  gap: 12px; // space between buttons
+  gap: 12px;
   margin: 0 16px 24px;
 
   .action-btn {
-    flex: 1; // equal width
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 16px 0; // tall, square-ish
+    padding: 16px 0;
     background: $primary;
     color: #fff;
     border: none;
@@ -470,10 +483,12 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     font-size: 16px;
     color: $text;
   }
+
   ul {
     list-style: none;
     margin: 0;
     padding: 0 0 16px;
+
     li {
       display: flex;
       justify-content: space-between;
@@ -484,23 +499,31 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       border-radius: $radius;
       box-shadow: $shadow;
       margin-bottom: 8px;
+
       .tx__info {
         display: flex;
         align-items: center;
         gap: 12px;
+
         .tx__icon {
           font-size: 20px;
+          color: $text;
         }
+
         .tx__desc {
           font-size: 14px;
+          color: $text;
         }
+
         .tx__date {
           font-size: 12px;
           color: $text-muted;
         }
       }
+
       .tx__amount {
         font-weight: 600;
+
         &.negative {
           color: $red;
         }
@@ -516,6 +539,7 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
   border-radius: $radius;
   box-shadow: $shadow;
+
   h3 {
     margin: 0 0 8px;
     font-size: 14px;
@@ -523,19 +547,23 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     text-transform: uppercase;
     letter-spacing: 1px;
   }
+
   ul {
     list-style: none;
     margin: 0;
     padding: 0;
+
     li {
       display: flex;
       justify-content: space-between;
       font-size: 14px;
       padding: 6px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      border-bottom: 1px solid $border-light;
+
       &:last-child {
         border: none;
       }
+
       .amount {
         font-weight: 600;
         color: $text;
@@ -546,4 +574,80 @@ $shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 
 main.home {
   padding-bottom: 60px;
+}
+
+.modal-backdrop .modal .field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 8px;
+
+  label {
+    flex: 0 0 30%;
+    margin: 0;
+    color: $text;
+  }
+
+  input,
+  select {
+    flex: 1;
+    padding: 6px 8px;
+    background: $form-bg;
+    color: $form-text;
+    border: 1px solid $form-border;
+    border-radius: 6px;
+
+    &::placeholder {
+      color: $form-placeholder;
+    }
+  }
+}
+
+.tx__info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .tx__details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .tx__desc {
+      font-size: 14px;
+      line-height: 1.2;
+      color: $text;
+    }
+
+    .tx__category,
+    .tx__timestamp {
+      font-size: 12px;
+      color: $text-muted;
+    }
+  }
+}
+
+.home__history ul li {
+  position: relative;
+
+  &.expense::before,
+  &.income::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-left: 16px solid transparent;
+    border-top: 16px solid;
+  }
+
+  &.expense::before {
+    border-top-color: $red;
+  }
+
+  &.income::before {
+    border-top-color: $primary;
+  }
 }

@@ -17,6 +17,7 @@ import Keycloak from 'keycloak-js';
 import { CategoryService } from './category.service';
 import { SettingsService } from './settings.service';
 import { forkJoin } from 'rxjs';
+import { RouterLink, RouterModule } from '@angular/router';
 
 interface BudgetRow { categoryId: number; categoryName: string; amount: number; selected?: boolean; }
 interface NewBudgetRow { categoryId: number | null; amount: number; isExisting?: boolean; }
@@ -24,7 +25,7 @@ interface NewBudgetRow { categoryId: number | null; amount: number; isExisting?:
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss']
 })
