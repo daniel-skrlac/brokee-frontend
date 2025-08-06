@@ -90,10 +90,9 @@
 
   <!-- BINANCE PORTFOLIO MODAL -->
   <div class="modal-backdrop" *ngIf="showBinanceModal">
-    <div class="modal crypto-modal scrollable">
-      <button type="button" class="btn-back" aria-label="Close" (click)="closeBinanceModal()">
-        ←
-      </button>
+    <div class="modal crypto-modal scrollable" style="height: 600px;">
+      <button class="btn-x" (click)="closeBinanceModal()">x</button>
+
       <h2>Your Binance Portfolio</h2>
 
       <div *ngIf="!portfolio">
@@ -179,10 +178,6 @@
             </tbody>
           </table>
 
-        </div>
-
-        <div class="modal-actions">
-          <button (click)="closeBinanceModal()">Close</button>
         </div>
       </div>
     </div>

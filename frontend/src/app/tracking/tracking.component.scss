@@ -1,3 +1,14 @@
+$form-bg         : var(--form-bg,         #ffffff);
+$form-bg-light   : var(--form-bg-light,   #f7f9fb);
+$form-text       : var(--form-text,       #222222);
+$form-border     : var(--form-border,     #d7dce2);
+$form-placeholder: var(--form-placeholder,#9ba3af);
+$backdrop        : var(--backdrop,        rgba(0,0,0,.6));
+$shadow          : var(--shadow,          0 8px 32px rgba(0,0,0,.25));
+$border-light    : var(--border-light,    #e5eaf0);
+$border          : var(--border,          #c9d0d9);
+$text            : var(--text,            #222);
+
 .tracking {
   padding: 16px;
   background: var(--bg);
@@ -738,3 +749,24 @@ main.tracking {
     font-style: italic;
   }
 }
+
+ .btn-x {
+    all: unset;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    background: $form-bg-light;
+    border: 1px solid $form-border;
+    border-radius: 50%;
+    font-size: 20px;
+    line-height: 1;
+    text-align: center;
+    cursor: pointer;
+    transition: background .2s;
+
+    &:hover {
+      background: $form-bg;
+    }
+  }

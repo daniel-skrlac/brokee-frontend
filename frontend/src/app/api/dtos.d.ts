@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-07-30 16:00:01.
+// Generated using typescript-generator version 3.2.1263 on 2025-08-06 21:25:15.
 
 export interface AccountSummaryDTO {
     topHoldings: HoldingDTO[];
@@ -134,7 +134,6 @@ export interface FullTxRequestDTO {
     amount: number;
     categoryId: number;
     txTime: Date;
-    merchant: string;
     note: string;
     latitude: number;
     longitude: number;

@@ -1,87 +1,171 @@
 <main class="transactions">
 
-  <!-- BACK BUTTON + PAGE TITLE -->
+  <!-- ───── header + mode switch ───── -->
   <header class="tx-header">
     <h1>Transactions</h1>
   </header>
-
-  <!-- MODE SWITCH ---------------------------------------------------------->
   <div class="segmented">
-    <button (click)="switch('list')" [class.active]="mode==='list'">List</button>
-    <button (click)="switch('calendar')" [class.active]="mode==='calendar'">Calendar</button>
+    <button (click)="mode='list'" [class.active]="mode==='list'">List</button>
+    <button (click)="mode='calendar'" [class.active]="mode==='calendar'">Calendar</button>
   </div>
 
-  <!-- FILTER PANEL ---------------------------------------------------------->
+  <!-- ───── filters ───── -->
   <section class="filters card--glass">
-    <input class="search" placeholder="Search merchant, note, category…" [(ngModel)]="q" (input)="applyFilters()" />
-
+    <input class="search" placeholder="Search…" [(ngModel)]="searchTxt" (input)="recalcView()">
     <div class="grid">
-      <!-- row 1 -->
       <div class="field">
         <label>Type</label>
-        <select [(ngModel)]="f.type" (change)="applyFilters()">
+        <select [(ngModel)]="f.type" (change)="recalcView()">
           <option value="">All</option>
           <option value="expense">Expense</option>
           <option value="income">Income</option>
         </select>
       </div>
-
-      <div class="field">
-        <label>From</label>
-        <input type="date" [(ngModel)]="f.from" (change)="applyFilters()">
-      </div>
-
-      <div class="field">
-        <label>To</label>
-        <input type="date" [(ngModel)]="f.to" (change)="applyFilters()">
-      </div>
-
-      <!-- row 2 -->
-      <div class="field">
-        <label>Min €</label>
-        <input type="number" [(ngModel)]="f.min" (input)="applyFilters()">
-      </div>
-
-      <div class="field">
-        <label>Max €</label>
-        <input type="number" [(ngModel)]="f.max" (input)="applyFilters()">
-      </div>
-
+      <div class="field"><label>From</label><input type="date" [(ngModel)]="f.from" (change)="recalcView()"></div>
+      <div class="field"><label>To</label><input type="date" [(ngModel)]="f.to" (change)="recalcView()"></div>
+      <div class="field"><label>Min €</label><input type="number" [(ngModel)]="f.min" (input)="recalcView()"></div>
+      <div class="field"><label>Max €</label><input type="number" [(ngModel)]="f.max" (input)="recalcView()"></div>
       <div class="field toggle">
-        <label>
-          <input type="checkbox" [(ngModel)]="f.recurring" (change)="applyFilters()">
-          Recurring
-        </label>
+        <label><input type="checkbox" [(ngModel)]="f.recurring" (change)="recalcView()"> Recurring</label>
       </div>
-
-      <button class="btn-reset" (click)="clear()">Reset</button>
+      <button class="btn-reset" (click)="clearFilters()">Reset</button>
     </div>
   </section>
 
-  <!-- CALENDAR VIEW -------------------------------------------------------->
-  <app-calendar-view *ngIf="mode==='calendar'" [transactions]="viewTx" (selectDate)="handleSelect($event)">
-  </app-calendar-view>
+  <!-- ───── calendar view ───── -->
+  <app-calendar-view *ngIf="mode==='calendar'" [transactions]="viewTx"
+    (selectDate)="handleDatePick($event)"></app-calendar-view>
 
-  <!-- LIST VIEW ------------------------------------------------------------>
-  <section *ngIf="mode==='list'" class="tx-list">
+  <!-- ───── list view ───── -->
+  <section class="tx-list" *ngIf="mode==='list'">
+    <nav class="pagination" *ngIf="displayPages>1">
+      <button (click)="prevPage()" [disabled]="currentPage===0">◀</button>
+      <span>Page {{currentPage+1}} / {{displayPages}}</span>
+      <button (click)="nextPage()" [disabled]="currentPage+1>=displayPages">▶</button>
+    </nav>
+
     <ng-container *ngFor="let day of groupKeys">
-      <div class="day-chip">{{ day }}</div>
-
+      <div class="day-chip">{{day}}</div>
       <div class="tx-card" *ngFor="let t of groups[day]" [class.expense]="t.type==='expense'"
-        [class.income]="t.type==='income'">
-        <span class="icon">{{ t.categoryIcon }}</span>
+        [class.income]="t.type==='income'" (click)="openView(t)">
+        <span class="icon">{{t.categoryIcon}}</span>
 
         <div class="info">
-          <strong class="cat">{{ t.category }}</strong>
-          <small class="sub" *ngIf="t.merchant">{{ t.merchant }}</small>
-          <small class="sub" *ngIf="t.note">{{ t.note }}</small>
+          <strong class="cat">{{t.category}}</strong>
+          <small class="sub" *ngIf="t.note">{{t.note}}</small>
+          <small class="sub" *ngIf="t.planned">planned</small>
         </div>
 
         <div class="meta">
-          <span class="amount">€{{ t.amount }}</span>
-          <small>{{ t.date | date:'shortTime' }}</small>
+          <span class="amount">€{{t.amount | number:'1.2-2'}}</span>
+          <small>{{t.date | date:'shortTime'}}</small>
+          <div class="row-btns" (click)="$event.stopPropagation()">
+            <button class="icn icn-edit" (click)="openEdit(t)">✎</button>
+            <button class="icn icn-delete" (click)="openDelete(t)">🗑️</button>
+          </div>
         </div>
       </div>
     </ng-container>
   </section>
+
+  <!-- ───── Floating-action button ───── -->
+  <div class="fab-container" [class.open]="fabOpen">
+    <button class="fab-main" (click)="fabOpen=!fabOpen">＋</button>
+    <div class="fab-actions">
+      <button class="fab-action" (click)="addTx()" title="Add tx">📝</button>
+      <button class="fab-action" (click)="addPlanned()" title="Planned">📅</button>
+      <button class="fab-action" (click)="pdfInput.click()" title="Import Revolut">
+        <img src="assets/icons/revolut.png" alt="R">
+      </button>
+    </div>
+    <input #pdfInput type="file" accept="application/pdf" hidden (change)="handlePdfChosen($event)">
+  </div>
+
+  <!-- ───── MODAL ───── -->
+  <div class="modal-backdrop" *ngIf="modalMode!=='view' || selected">
+    <div class="tx-modal">
+      <button class="btn-x" (click)="closeModal()">×</button>
+
+      <!-- VIEW -->
+      <ng-container *ngIf="modalMode==='view' && selected">
+        <h2>Transaction</h2>
+        <p><strong>{{selected.category}}</strong> {{selected.amount|currency}}</p>
+        <p>{{selected.date | date:'full'}}</p>
+        <p *ngIf="selected.note">{{selected.note}}</p>
+        <div class="modal-actions">
+          <button (click)="openEdit(selected)">Edit</button>
+          <button (click)="openDelete(selected)">Delete</button>
+        </div>
+      </ng-container>
+
+      <!-- DELETE -->
+      <ng-container *ngIf="modalMode==='delete' && selected">
+        <h2>Delete?</h2>
+        <p>Delete <strong>{{selected.category}}</strong> – €{{selected.amount}} ?</p>
+        <div class="modal-actions">
+          <button (click)="closeModal()">Cancel</button>
+          <button class="danger" (click)="confirmDelete()">Delete</button>
+        </div>
+      </ng-container>
+
+      <!-- EDIT / NEW -->
+      <form *ngIf="isEdit() || isNew()" #frm="ngForm" (ngSubmit)="isEdit() ? saveEdit(frm) : saveNew(frm)">
+
+        <h2>
+          {{
+          modalMode==='quickEdit' ? 'Quick edit' :
+          modalMode==='fullEdit' ? 'Edit transaction' :
+          modalMode==='planEdit' ? 'Edit planned' :
+          modalMode==='newTx' ? 'New transaction' : 'New planned'
+          }}
+        </h2>
+
+        <!-- show spinner while waiting for payload -->
+        <p *ngIf="loadingEdit" class="loading">Loading…</p>
+
+        <!-- AMOUNT -->
+        <input name="amount" type="number" min="0.01" step="0.01" [(ngModel)]="editForm.amount" required>
+
+        <!-- CATEGORY -->
+        <select name="categoryId" [(ngModel)]="editForm.categoryId" required>
+          <option [ngValue]="null" disabled>Select category</option>
+          <option *ngFor="let c of categories" [value]="c.id">{{c.name}}</option>
+        </select>
+
+        <!-- TITLE (planned only) -->
+        <input *ngIf="modalMode==='planEdit' || modalMode==='newPlan'" name="title" [(ngModel)]="editForm.title"
+          placeholder="Title" required>
+
+        <!-- TYPE -->
+        <select *ngIf="modalMode!=='quickEdit'" name="type" [(ngModel)]="editForm.type" required>
+          <option value="expense">Expense</option>
+          <option value="income">Income</option>
+        </select>
+
+        <!-- DATE -->
+        <input *ngIf="modalMode!=='quickEdit'" name="date"
+          [type]="modalMode==='planEdit' || modalMode==='newPlan' ? 'date' : 'datetime-local'"
+          [(ngModel)]="editForm.date" required>
+
+        <!-- USE-GEO checkbox (all non-planned tx) -->
+        <!-- USE-GEO  -->
+        <div class="field checkbox-row" *ngIf="modalMode!=='planEdit' && modalMode!=='newPlan'">
+          <label>
+            <input type="checkbox" [(ngModel)]="editForm.useGeo" name="useGeo">
+            <span>Use my location</span>
+          </label>
+        </div>
+
+        <!-- NOTE -->
+        <textarea *ngIf="modalMode!=='quickEdit'" name="note" [(ngModel)]="editForm.note" placeholder="Note"></textarea>
+
+        <div class="modal-actions">
+          <button type="button" (click)="closeModal()">Cancel</button>
+          <button type="submit" [disabled]="frm.invalid || loadingEdit">Save</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
 </main>
