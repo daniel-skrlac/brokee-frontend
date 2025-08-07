@@ -4,13 +4,15 @@
   <header class="tx-header">
     <h1>Transactions</h1>
   </header>
+  <!-- mode switch -->
   <div class="segmented">
-    <button (click)="mode='list'" [class.active]="mode==='list'">List</button>
-    <button (click)="mode='calendar'" [class.active]="mode==='calendar'">Calendar</button>
+    <button (click)="setMode('list')" [class.active]="mode==='list'">List</button>
+    <button (click)="setMode('calendar')" [class.active]="mode==='calendar'">Calendar</button>
   </div>
 
+
   <!-- ───── filters ───── -->
-  <section class="filters card--glass">
+  <section class="filters card--glass" *ngIf="mode==='list'">
     <input class="search" placeholder="Search…" [(ngModel)]="searchTxt" (input)="recalcView()">
     <div class="grid">
       <div class="field">
@@ -33,8 +35,10 @@
   </section>
 
   <!-- ───── calendar view ───── -->
-  <app-calendar-view *ngIf="mode==='calendar'" [transactions]="viewTx"
-    (selectDate)="handleDatePick($event)"></app-calendar-view>
+  <app-calendar-view *ngIf="mode==='calendar'" [transactions]="viewTx" (openTx)="openView($event)"
+    (openDay)="handleDatePick($event)">
+  </app-calendar-view>
+
 
   <!-- ───── list view ───── -->
   <section class="tx-list" *ngIf="mode==='list'">
@@ -89,8 +93,12 @@
       <!-- VIEW -->
       <ng-container *ngIf="modalMode==='view' && selected">
         <h2>Transaction</h2>
-        <p><strong>{{selected.category}}</strong> {{selected.amount|currency}}</p>
-        <p>{{selected.date | date:'full'}}</p>
+        <p><strong>{{selected.category}}:</strong> {{selected.amount|currency}}</p>
+
+
+        <!-- choose the style you prefer -->
+        <p><strong>Date: </strong> {{ selected.date | date:'yyyy-MM-dd HH:mm' }}</p>
+
         <p *ngIf="selected.note">{{selected.note}}</p>
         <div class="modal-actions">
           <button (click)="openEdit(selected)">Edit</button>
@@ -148,8 +156,7 @@
           [(ngModel)]="editForm.date" required>
 
         <!-- USE-GEO checkbox (all non-planned tx) -->
-        <!-- USE-GEO  -->
-        <div class="field checkbox-row" *ngIf="modalMode!=='planEdit' && modalMode!=='newPlan'">
+        <div class="field checkbox-row" *ngIf="modalMode!=='planEdit' && modalMode!=='newPlan' && isNew()">
           <label>
             <input type="checkbox" [(ngModel)]="editForm.useGeo" name="useGeo">
             <span>Use my location</span>

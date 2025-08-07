@@ -1,22 +1,25 @@
 <div class="calendar">
-    <!-- weekday headers -->
-    <div class="day-name" *ngFor="let n of ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']">{{ n }}</div>
-  
-    <!-- day cells -->
-    <button
-      *ngFor="let d of days"
-      class="cell"
-      [class.other]="d < monthStart || d > monthEnd"
-      (click)="selectDate.emit(d)">
-  
-      <span class="num">{{ d.getDate() }}</span>
-  
-      <span
-        class="dot"
-        *ngIf="txTotal(d) !== 0"
-        [ngClass]="{ pos: txTotal(d) > 0, neg: txTotal(d) < 0 }">
-        {{ txTotal(d) | number:'1.0-0' }}
-      </span>
-    </button>
+
+  <div class="day-name" *ngFor="let n of ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']">
+    {{ n }}
   </div>
-  
+
+  <div class="cell" *ngFor="let d of days" [class.other]="isOtherMonth(d)" [class.today]="isToday(d)"
+    (click)="openDay.emit(d)">
+
+    <span class="num">{{ d.getDate() }}</span>
+
+    <ng-container *ngFor="let t of txOfDay(d) | slice:0:3">
+      <button class="mini" [ngClass]="[t.type, isPast(t) ? 'past' : '']"
+        (click)="openTx.emit(t); $event.stopPropagation()">
+        <span class="title">{{ t.category }}</span>
+        <span class="amt">{{ t.amount | number:'1.0-0' }}</span>
+      </button>
+    </ng-container>
+
+    <button *ngIf="txOfDay(d).length>3" class="more" (click)="openDay.emit(d); $event.stopPropagation()">
+      +{{ txOfDay(d).length-3 }}
+    </button>
+
+  </div>
+</div>

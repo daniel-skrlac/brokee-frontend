@@ -24,11 +24,11 @@
   <ng-container *ngIf="topLocations?.length; else noLocations">
     <section class="card map-section">
       <h2>Top 3 Spending Locations</h2>
-      <div id="clusterMap"></div>
+      <div id="clusterMap" #mapEl class="map"></div>
       <div class="map-controls">
-        <button (click)="prevLocation()">◀ Previous</button>
+        <button class="btn-square" (click)="prevLocation()">◀</button>
         <span>{{ topLocations[currentLocIdx].label }}</span>
-        <button (click)="nextLocation()">Next ▶</button>
+        <button class="btn-square" (click)="nextLocation()">▶</button>
       </div>
     </section>
   </ng-container>

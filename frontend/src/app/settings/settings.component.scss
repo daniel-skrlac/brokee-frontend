@@ -325,4 +325,24 @@ main.settings {
       }
     }
   }
+
+  .card.logout {
+    text-align: center;
+
+    .btn-logout {
+      background: var(--danger, #e53935);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: opacity .2s;
+      width: 100%;
+
+      &:hover {
+        opacity: .85;
+      }
+    }
+  }
 }

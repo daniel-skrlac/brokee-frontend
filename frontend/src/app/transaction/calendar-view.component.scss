@@ -1,3 +1,6 @@
+$green: #27ae60;
+$red: #e74c3c;
+
 .calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -10,15 +13,21 @@
   }
 
   .cell {
-    aspect-ratio: 1/1;
-    border: none;
+    min-height: 88px;
     background: #f8f9fc;
     border-radius: 8px;
     position: relative;
-    cursor: pointer;
+    padding: 22px 2px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 
     &.other {
       opacity: .35
+    }
+
+    &:hover {
+      background: #eaf2ff
     }
 
     .num {
@@ -29,24 +38,70 @@
       color: #333
     }
 
-    .dot {
-      position: absolute;
-      bottom: 5px;
-      right: 5px;
-      font-size: .65rem;
-      font-weight: 600;
+    .mini {
+      all: unset;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+      gap: 4px;
+      font-size: .64rem;
+      line-height: 1.4;
+      border-radius: 4px;
+      background: #ffffff;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: background .15s;
 
-      &.pos {
-        color: #27ae60
+      &.income {
+        border-color: $green;
+        color: $green;
       }
 
-      &.neg {
-        color: #e74c3c
+      &.expense {
+        border-color: $red;
+        color: $red;
+      }
+
+      &:hover {
+        background: #f1f5ff
+      }
+
+      .title {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .amt {
+        font-weight: 600;
       }
     }
 
-    &:hover {
-      background: #e5eeff
+    .more {
+      all: unset;
+      align-self: center;
+      padding: 0 6px;
+      font-size: .66rem;
+      line-height: 1.5;
+      background: #dfe6ff;
+      border-radius: 8px;
+      cursor: pointer;
+
+      &:hover {
+        background: #cddbff
+      }
     }
   }
+
+  .cell.today {
+    outline: 2px solid #4a90e2;
+    background: #eef6ff;
+  }
+
+  .mini.past {
+    opacity: .55;
+    text-decoration: line-through;
+  }
+
 }

@@ -1,34 +1,24 @@
-@use "sass:string";
-
-/*─────────────────────────────────────────────────────────────────
-  DESIGN TOKENS
-─────────────────────────────────────────────────────────────────*/
-/*─────────────────────────────────────────────────────────────────
-  DESIGN TOKENS  (base)                                             */
-$bg : #f2f4f8;
-$glass : rgba(255, 255, 255, .7);
-$cardShadow : 0 4px 16px rgba(0, 0, 0, .06);
+$bg : var(--bg);
+$glass : var(--glass);
+$cardShadow : var(--card-shadow);
 $radius : 16px;
-$primary : #4a90e2;
-$red : #dc3545;
-$green : #2ecc71;
-$txt : #222;
-$txtMuted: #666;
 
-/* ──  add the “form / backdrop” tokens used by Home  ──────────── */
-$form-bg : var(--form-bg, #ffffff);
-$form-bg-light : var(--form-bg-light, #f7f9fb);
-$form-text : var(--form-text, #222222);
-$form-border : var(--form-border, #d7dce2);
-$form-placeholder: var(--form-placeholder, #9ba3af);
-$backdrop : var(--backdrop, rgba(0, 0, 0, .6));
-$shadow : var(--shadow, 0 8px 32px rgba(0, 0, 0, .25));
-$border-light : var(--border-light, #e5eaf0);
-$border : var(--border, #c9d0d9);
-$text : var(--text, #222);
+$primary : var(--primary);
+$red : var(--danger, #e53935);
+$green : var(--success);
 
-/* …rest of the file (no other changes needed) … */
+$txt : var(--text);
+$txtMuted : var(--text-muted);
 
+$form-bg : var(--form-bg);
+$form-bg-light : var(--form-bg-light);
+$form-text : var(--form-text);
+$form-border : var(--form-border);
+$form-placeholder : var(--form-placeholder);
+
+$border : var(--border);
+$border-light : var(--border-light);
+$backdrop : var(--backdrop);
 
 @mixin card($blur: 10px) {
   background: $glass;
@@ -37,25 +27,21 @@ $text : var(--text, #222);
   box-shadow: $cardShadow;
 }
 
-/*─────────────────────────────────────────────────────────────────
-  ROOT WRAPPER
-─────────────────────────────────────────────────────────────────*/
-.transactions {
+.transactions,
+.settings {
   padding: 16px;
   background: $bg;
   min-height: 100vh;
-  font-family: "Inter", sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
 }
 
-/* pad for bottom-nav / FAB overlap */
-main.transactions {
+main.transactions,
+main.settings {
   padding-bottom: 120px;
 }
 
-/*─────────────────────────────────────────────────────────────────
-  HEADER  (optional back button later)
-─────────────────────────────────────────────────────────────────*/
-.tx-header {
+.tx-header,
+.settings__header {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -82,9 +68,6 @@ main.transactions {
   }
 }
 
-/*─────────────────────────────────────────────────────────────────
-  SEGMENTED MODE SWITCH
-─────────────────────────────────────────────────────────────────*/
 .segmented {
   @include card(10px);
   display: flex;
@@ -111,9 +94,6 @@ main.transactions {
   }
 }
 
-/*─────────────────────────────────────────────────────────────────
-  FILTER PANEL
-─────────────────────────────────────────────────────────────────*/
 .filters {
   @include card;
   padding: 14px 16px;
@@ -124,9 +104,10 @@ main.transactions {
     padding: 10px 14px;
     border: none;
     border-radius: 32px;
-    background: #f1f3f7;
+    background: $form-bg-light;
     margin-bottom: 14px;
     font-size: .95rem;
+    color: $form-text;
   }
 
   .grid {
@@ -142,17 +123,16 @@ main.transactions {
       label {
         font-size: .75rem;
         color: $txtMuted;
-        margin-bottom: 4px
+        margin-bottom: 4px;
       }
     }
 
     .field.toggle {
       flex-direction: row;
-      align-items: center;
       gap: 6px;
 
       label {
-        margin: 0
+        margin: 0;
       }
     }
 
@@ -161,35 +141,14 @@ main.transactions {
       height: 38px;
       padding: 0 12px;
       font-size: .9rem;
-      border: 1px solid #ccc;
+      border: 1px solid $form-border;
       border-radius: 8px;
-      background: #fff;
-      color: $txt;
-      transition: border-color .2s;
+      background: $form-bg;
+      color: $form-text;
+      transition: border-color .15s;
 
       &:focus {
-        outline: none;
         border-color: $primary;
-      }
-    }
-
-    input[type="date"] {
-      appearance: none;
-      min-height: 38px;
-
-      &::-webkit-datetime-edit {
-        padding: 0
-      }
-
-      &::-webkit-calendar-picker-indicator {
-        width: 18px;
-        height: 18px;
-        margin-left: 4px
-      }
-
-      &::-webkit-inner-spin-button,
-      &::-webkit-clear-button {
-        display: none
       }
     }
 
@@ -202,18 +161,15 @@ main.transactions {
       color: #fff;
       font-weight: 600;
       cursor: pointer;
-      transition: background .25s;
+      transition: opacity .2s;
 
       &:hover {
-        background: darken($primary, 5%)
+        opacity: .85;
       }
     }
   }
 }
 
-/*─────────────────────────────────────────────────────────────────
-  CALENDAR VIEW
-─────────────────────────────────────────────────────────────────*/
 .calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -222,24 +178,23 @@ main.transactions {
   .day-name {
     font-size: .75rem;
     text-align: center;
-    color: $txtMuted
+    color: $txtMuted;
   }
 
   .cell {
     aspect-ratio: 1/1;
-    border: none;
     border-radius: 8px;
-    background: #f8f9fc;
+    background: $form-bg-light;
     position: relative;
     cursor: pointer;
-    transition: background .2s;
+    transition: background .15s;
 
     &.other {
-      opacity: .35
+      opacity: .35;
     }
 
-    &:hover {
-      background: #e5eeff
+    &.today {
+      outline: 2px solid $primary;
     }
 
     .num {
@@ -258,19 +213,16 @@ main.transactions {
       font-weight: 600;
 
       &.pos {
-        color: $green
+        color: $green;
       }
 
       &.neg {
-        color: $red
+        color: $red;
       }
     }
   }
 }
 
-/*─────────────────────────────────────────────────────────────────
-  LIST VIEW : group chip + cards
-─────────────────────────────────────────────────────────────────*/
 .day-chip {
   display: inline-block;
   margin: 24px 0 6px;
@@ -286,15 +238,17 @@ main.transactions {
 .tx-card {
   @include card(0);
   display: flex;
-  align-items: center;
   gap: 10px;
   padding: 12px 14px;
   margin-bottom: 10px;
-  background: #fff;
+  background: $form-bg;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   .icon {
     font-size: 1.35rem;
-    line-height: 1;
   }
 
   .info {
@@ -325,17 +279,14 @@ main.transactions {
   }
 
   &.expense .amount {
-    color: $red
+    color: $red;
   }
 
   &.income .amount {
-    color: $green
+    color: $green;
   }
 }
 
-/*─────────────────────────────────────────────────────────────────
-  SPEED-DIAL  (floating-action-buttons)
-─────────────────────────────────────────────────────────────────*/
 .fab-container {
   position: fixed;
   bottom: 84px;
@@ -347,18 +298,17 @@ main.transactions {
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    border: none;
-    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: none;
     color: #fff;
     font-size: 24px;
+    cursor: pointer;
     box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
     transition: transform .25s;
   }
 
-  /* main (toggle) */
   .fab-main {
     background: $primary;
   }
@@ -367,7 +317,6 @@ main.transactions {
     transform: rotate(45deg);
   }
 
-  /* children */
   .fab-actions {
     position: absolute;
     bottom: 70px;
@@ -378,31 +327,20 @@ main.transactions {
     pointer-events: none;
     transition: opacity .25s;
 
-    .fab-action {
-      width: 48px;
-      height: 48px;
-      font-size: 20px;
+    .fab-action:nth-child(1) {
+      background: $primary;
+    }
 
-      &:nth-child(1) {
-        background: $primary;
-      }
+    .fab-action:nth-child(2) {
+      background: #f39c12;
+    }
 
-      /* new tx */
-      &:nth-child(2) {
-        background: #f39c12;
-      }
+    .fab-action:nth-child(3) {
+      background: #0020ff;
+    }
 
-      /* planned */
-      &:nth-child(3) {
-        background: #0020ff;
-      }
-
-      /* Revolut */
-      img {
-        width: 24px;
-        height: 24px;
-        object-fit: contain;
-      }
+    img {
+      width: 100%;
     }
   }
 
@@ -412,168 +350,6 @@ main.transactions {
   }
 }
 
-/*─────────────────────────────────────────────────────────────────
-  MODAL (view / edit / delete)
-─────────────────────────────────────────────────────────────────*/
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, .6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1003;
-}
-
-.tx-modal {
-  background: #fff;
-  border-radius: $radius;
-  max-width: 400px;
-  width: 90%;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, .25);
-  overflow: hidden;
-
-  >* {
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-
-  /* the actual form controls ---------------------------------- */
-  input,
-  select,
-  textarea {
-    width: 100%;
-    box-sizing: border-box; // <-- fixes horizontal overflow
-    padding: 10px;
-    border: 1px solid $form-border;
-    border-radius: 8px;
-    background: $form-bg;
-    color: $form-text;
-    font-size: .95rem;
-  }
-
-  h2 {
-    margin: 0 0 12px;
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: $txt;
-  }
-
-  form {
-    flex: 1;
-    overflow: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  input,
-  select,
-  textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: .9rem;
-
-    &:disabled {
-      background: #f5f5f5;
-      color: $txtMuted;
-    }
-  }
-
-  .actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 12px;
-
-    button {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-
-      &:first-child {
-        background: #e0e0e0;
-        color: #333;
-      }
-
-      &:last-child {
-        background: $primary;
-        color: #fff;
-      }
-
-      &.danger {
-        background: $red;
-        color: #fff;
-      }
-    }
-  }
-}
-
-/*─────────────────────────────────────────────────────────────────
-  ICON MAP  (class helper if you use <span class="icon atm-fee">)
-─────────────────────────────────────────────────────────────────*/
-
-/* helper -------------------------------------------------------*/
-@function str-replace($string, $search, $replace: '') {
-  $index: str-index($string, $search);
-  @return if($index,
-    str-slice($string, 1, $index - 1) + $replace + str-replace(str-slice($string, $index + str-length($search)),
-      $search,
-      $replace ),
-    $string );
-}
-
-/* ════════════════════════════════════════════════════════════════
-   LIST-ROW  ACTION  ICONS
-   ══════════════════════════════════════════════════════════════ */
-.row-btns {
-  display: grid;
-  grid-auto-flow: column;
-  gap: 4px;
-  margin-top: 4px;
-}
-
-.icn {
-  all: unset;
-  /* strip native button styles        */
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  line-height: 1;
-  background: $form-bg-light;
-  border: 1px solid $form-border;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background .2s, transform .15s;
-
-  &:hover {
-    background: $form-bg;
-    transform: translateY(-1px);
-  }
-
-  &.icn-edit {
-    color: $primary;
-  }
-
-  &.icn-delete {
-    color: $red;
-  }
-}
-
-/* ════════════════════════════════════════════════════════════════
-   POP-UP / MODAL  STYLING  (reuse home-screen tokens)
-   ══════════════════════════════════════════════════════════════ */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -584,121 +360,17 @@ main.transactions {
   z-index: 1003;
 }
 
-.tx-modal {
-  @include card(10px);
-  background: $form-bg;
-  color: $form-text;
-  width: 90%;
-  max-width: 360px;
-  max-height: 80vh;
-  padding: 24px;
-  border-radius: $radius;
-  box-shadow: $shadow;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  position: relative;
-  /* for absolute close btn */
-
-  h2 {
-    margin: 0 0 16px;
-    font-size: 1.25rem;
-  }
-
-  .btn-x {
-    all: unset;
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 32px;
-    height: 32px;
-    background: $form-bg-light;
-    border: 1px solid $form-border;
-    border-radius: 50%;
-    font-size: 20px;
-    line-height: 1;
-    text-align: center;
-    cursor: pointer;
-    transition: background .2s;
-
-    &:hover {
-      background: $form-bg;
-    }
-  }
-
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    overflow: auto;
-  }
-
-  input,
-  textarea,
-  select {
-    padding: 10px;
-    border: 1px solid $form-border;
-    border-radius: 8px;
-    background: $form-bg;
-    color: $form-text;
-    font-size: .95rem;
-
-    &::placeholder {
-      color: $form-placeholder;
-    }
-  }
-
-  .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 12px;
-
-    button {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background .25s, transform .15s;
-
-      &:first-child {
-        background: $border-light;
-        color: $text;
-      }
-
-      &:last-child {
-        background: $primary;
-        color: #fff;
-      }
-
-      &.danger {
-        background: $red;
-        color: #fff;
-      }
-
-      &:hover:not(:disabled) {
-        transform: translateY(-2px);
-      }
-
-      &:disabled {
-        opacity: .6;
-        cursor: not-allowed;
-        transform: none;
-      }
-    }
-  }
-}
-
 .pagination {
   @include card(10px);
   margin: 24px auto 0;
   padding: 6px 12px;
-  width: max-content;
   display: flex;
-  align-items: center;
   gap: 12px;
+  align-items: center;
   font-size: .9rem;
+
+  display: flex;
+  justify-content: center;
 
   button {
     all: unset;
@@ -724,30 +396,367 @@ main.transactions {
   }
 }
 
-/* ▼ checkbox row looks like every other “field” line */
-/* prettier checkbox row — drop-in replacement */
 .field.checkbox-row {
   display: flex;
   align-items: center;
-  gap: .65rem;                /* distance between box & text */
-  padding: .25rem 0;          /* same vertical rhythm as inputs */
+  gap: .65rem;
+  padding: .25rem 0;
 
-  /* we don't want the label to stretch the full width */
   label {
     display: flex;
     align-items: center;
     gap: .5rem;
     font-weight: 500;
-    /* remove the old width:100% so text hugs the box */
   }
 
-  /* checkbox itself */
   input[type='checkbox'] {
-    flex: 0 0 auto;           /* don’t grow/shrink */
-    accent-color: var(--accent, #3b82f6);
+    flex: 0 0 auto;
+    accent-color: $primary;
     width: 1.05rem;
     height: 1.05rem;
-    margin: 0;                /* wipe browser default offset */
-    border-radius: .2rem;     /* matches other form-field radius */
+    margin: 0;
+    border-radius: .2rem;
   }
+}
+
+.card {
+  @include card;
+  padding: 20px;
+  border-radius: $radius;
+  margin-bottom: 24px;
+
+  h2 {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+    font-weight: 600;
+    color: $txt;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+
+  label {
+    font-size: .9rem;
+    margin-bottom: 4px;
+    color: $txtMuted;
+  }
+
+  input,
+  select {
+    padding: 10px 12px;
+    border: 1px solid $form-border;
+    border-radius: 8px;
+    background: $form-bg;
+    color: $form-text;
+    font-size: 1rem;
+
+    &::placeholder {
+      color: $form-placeholder;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+    }
+  }
+}
+
+.btn-save,
+.btn-delete,
+.btn-add,
+.btn-logout {
+  padding: 10px 20px;
+  font-size: .95rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity .2s;
+  min-width: 140px;
+
+  &.btn-save {
+    background: $primary;
+    color: #fff;
+  }
+
+  &.btn-delete,
+  &.btn-logout {
+    background: $red;
+    color: #fff;
+  }
+
+  &.btn-add {
+    background: transparent;
+    border: 2px dashed $primary;
+    color: $primary;
+  }
+
+  &:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    opacity: .85;
+  }
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+
+  th,
+  td {
+    padding: 12px;
+    border-bottom: 1px solid $form-border;
+    color: $txt;
+  }
+
+  th {
+    background: $glass;
+    font-weight: 600;
+  }
+}
+
+.pager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+
+  button {
+    @extend .btn-save;
+    padding: 6px 12px;
+    min-width: unset;
+  }
+
+  span {
+    color: $txt;
+    font-size: .95rem;
+  }
+}
+
+.card.logout {
+  text-align: center;
+
+  .btn-logout {
+    width: 100%;
+  }
+}
+
+@media (max-width:600px) {
+  .settings .budget-row {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto auto;
+    gap: 8px;
+    margin-bottom: 16px;
+
+    select,
+    input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .btn-remove {
+      justify-self: end;
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  .settings .budget-actions {
+    flex-direction: column;
+    gap: 8px;
+
+    button {
+      width: 100%;
+    }
+  }
+}
+
+.row-btns {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.icn {
+  all: unset;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  background: $form-bg-light;
+  border: 1px solid $form-border;
+  cursor: pointer;
+  transition: background .15s, transform .15s;
+
+  &:hover {
+    background: $form-bg;
+    transform: translateY(-1px);
+  }
+
+  &.icn-edit {
+    color: $primary;
+  }
+
+  &.icn-delete {
+    color: $red;
+  }
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $backdrop;
+  z-index: 1003;
+}
+
+.tx-modal {
+  @include card(10px);
+  background: $form-bg;
+  color: $form-text;
+
+  width: 90%;
+  max-width: 400px;
+  max-height: 80vh;
+
+  padding: 24px;
+  border-radius: $radius;
+  overflow: hidden;
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .btn-x {
+    all: unset;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: $form-bg-light;
+    border: 1px solid $form-border;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background .2s;
+
+    &:hover {
+      background: $form-bg;
+    }
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid $form-border;
+    border-radius: 8px;
+    background: $form-bg;
+    color: $form-text;
+    font-size: .95rem;
+
+    &::placeholder {
+      color: $form-placeholder;
+    }
+
+    &:disabled {
+      opacity: .55;
+    }
+  }
+
+  form {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .2s;
+
+      &:first-child {
+        background: $border-light;
+        color: $txt;
+      }
+
+      &:last-child {
+        background: $primary;
+        color: #fff;
+      }
+
+      &.danger {
+        background: $red;
+        color: #fff;
+      }
+
+      &:hover:not(:disabled) {
+        opacity: .85;
+      }
+
+      &:disabled {
+        opacity: .55;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  input,
+  select,
+  textarea {
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow-x: hidden;
+
+    width: 100%;
+    padding: 10px;
+    border: 1px solid $form-border;
+    border-radius: 8px;
+    background: $form-bg;
+    color: $form-text;
+    font-size: .95rem;
+
+    &::placeholder {
+      color: $form-placeholder;
+    }
+
+    &:disabled {
+      opacity: .55;
+    }
+  }
+
 }

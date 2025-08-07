@@ -1,36 +1,51 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
-import { Transaction } from '../model';
+import { CommonModule } from '@angular/common';
 import {
   startOfMonth, endOfMonth, startOfWeek,
-  addDays, isSameDay
+  addDays, isSameDay, startOfDay,
+  isBefore
 } from 'date-fns';
 
+import type { UITransaction } from './transaction.component';
+
 @Component({
-  selector   : 'app-calendar-view',
-  standalone : true,
-  imports    : [CommonModule, DecimalPipe],
+  selector: 'app-calendar-view',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './calendar-view.component.html',
-  styleUrls  : ['./calendar-view.component.scss'],
+  styleUrls: ['./calendar-view.component.scss']
 })
 export class CalendarViewComponent {
-  @Output() selectDate = new EventEmitter<Date>();
 
-  @Input()  transactions: Transaction[] = [];
 
-  today      = new Date();
-  monthStart = startOfMonth(this.today);
-  monthEnd   = endOfMonth(this.today);
-  gridStart  = startOfWeek(this.monthStart, { weekStartsOn: 1 });
+  today = startOfDay(new Date());
 
-  /* 6 rows × 7 cols = 42 days */
+  isToday(d: Date) {
+    return isSameDay(d, this.today);
+  }
+
+  isPast(t: UITransaction) {
+    return isBefore(t.date, this.today);
+  }
+
+  @Input() transactions: UITransaction[] = [];
+  @Output() openTx = new EventEmitter<UITransaction>();
+  @Output() openDay = new EventEmitter<Date>();
+
+  private monthStart = startOfMonth(this.today);
+  private monthEnd = endOfMonth(this.today);
+  private gridStart = startOfWeek(this.monthStart, { weekStartsOn: 1 });
+
   get days(): Date[] {
     return Array.from({ length: 42 }, (_, i) => addDays(this.gridStart, i));
   }
 
-  txTotal(d: Date): number {
-    return this.transactions
-               .filter(t => isSameDay(t.date, d))
-               .reduce((s,t)=>s+(t.type==='expense'? -t.amount : t.amount),0);
+  isOtherMonth(d: Date) {
+    return d < this.monthStart || d > this.monthEnd;
+  }
+
+  txOfDay(d: Date): UITransaction[] {
+    return this.transactions.filter(t => isSameDay(t.date, d))
+      .sort((a, b) => a.amount - b.amount);
   }
 }
