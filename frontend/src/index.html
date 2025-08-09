@@ -23,13 +23,20 @@
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
-    OneSignalDeferred.push(async function (OneSignal) {
-      await OneSignal.init({
-        appId: "94fae30e-1708-4d07-afec-4de9d53eaff9",
-        allowLocalhostAsSecureOrigin: true
+    if (!window.__osInitDone) {
+      window.__osInitDone = true; // guard against HMR double init
+      window.OneSignalDeferred.push(async (OneSignal) => {
+        await OneSignal.init({
+          appId: "94fae30e-1708-4d07-afec-4de9d53eaff9",
+          allowLocalhostAsSecureOrigin: true,
+          // worker files are at /, so keep default names & root scope
+          serviceWorkerPath: "/"
+          // DO NOT set serviceWorkerParam/scope here
+        });
       });
-    });
+    }
   </script>
+
 </head>
 
 <body>

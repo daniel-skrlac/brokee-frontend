@@ -24,7 +24,12 @@ import {
 import { CategoryService } from './category.service';
 import { SettingsService } from './settings.service';
 
-/* ─────────── local helpers ─────────── */
+declare global { interface Window { OneSignalDeferred?: any[]; } }
+function withOneSignal(cb: (os: any) => void) {
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  window.OneSignalDeferred.push(cb);
+}
+
 interface BudgetRow { categoryId: number; categoryName: string; amount: number; selected?: boolean; }
 interface NewBudgetRow { categoryId: number | null; amount: number; isExisting?: boolean; }
 
@@ -292,5 +297,9 @@ export class SettingsComponent implements OnInit {
   private findCategoryName(id: number): string { return this.categories.find(c => c.id === id)?.name ?? ''; }
   private toInputDate(d: Date): string { return d.toISOString().slice(0, 10); }
 
-  logout(): void { this.keycloak.logout({ redirectUri: window.location.origin }); }
+  logout(): void {
+    withOneSignal(os => os.logout());
+
+    this.keycloak.logout({ redirectUri: window.location.origin });
+  }
 }

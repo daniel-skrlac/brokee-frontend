@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-08-07 20:48:28.
+// Generated using typescript-generator version 3.2.1263 on 2025-08-09 13:26:39.
 
 export interface AccountSummaryDTO {
     topHoldings: HoldingDTO[];
@@ -169,8 +169,18 @@ export interface TxResponseDTO {
     note: string;
 }
 
+export interface RegisterDTO {
+    externalId: string;
+    subscriptionId: string;
+}
+
 export interface RegisterPushDTO {
     playerId: string;
+}
+
+export interface TransferDTO {
+    subscriptionId: string;
+    externalId: string;
 }
 
 export interface ServiceResponseDTO<T> {

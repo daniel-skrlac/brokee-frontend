@@ -104,25 +104,20 @@ export class TransactionComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.theme = this.themeService.initTheme();
+
     this.catApi.listAll()
       .pipe(
-        catchError(() => of({ data: [] } as unknown as ServiceResponseDTO<CategoryResponseDTO[]>))
+        catchError(() =>
+          of({ data: [] } as unknown as ServiceResponseDTO<CategoryResponseDTO[]>)
+        )
       )
       .subscribe(r => {
         this.categories = r.data ?? [];
-
-        if (this.items.length) {
-          this.items = this.items
-            .map(it => (it.planned ? it : this.mapRegular(it as any)))
-            .filter(Boolean)
-            .sort((a, b) => +b.date - +a.date);
-          this.recalcView();
-        }
+        this.recalcView();
       });
 
     this.fetchPage(0);
-
-    this.theme = this.themeService.initTheme();
   }
 
   private handleSave(
